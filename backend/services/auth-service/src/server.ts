@@ -1,3 +1,5 @@
+import "dotenv/config"; // MUST be first — loads .env before any pool is created
+
 import moduleAlias from "module-alias";
 import path from "path";
 

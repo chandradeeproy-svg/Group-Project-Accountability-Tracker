@@ -3,9 +3,4 @@ import { env } from "./env";
 
 export const pool = new Pool({
   connectionString: env.DATABASE_URL,
-  host: env.DB_HOST,
-  port: env.DB_PORT,
-  user: env.DB_USER,
-  password: env.DB_PASSWORD,
-  database: env.DB_NAME,
 });

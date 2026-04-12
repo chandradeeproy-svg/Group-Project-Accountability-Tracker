@@ -1,8 +1,23 @@
+import { getCached, setCached, clearCache } from "./cache";
+
 export async function apiFetch(
   url: string,
   options: RequestInit = {},
   token?: string
 ) {
+  const method = options.method || "GET";
+  const cacheKey = `${method}:${url}`;
+
+  if (method === "GET") {
+    const cached = getCached(cacheKey);
+    if (cached) {
+      return cached;
+    }
+  } else {
+    // Clear cache on mutations
+    clearCache();
+  }
+
   const res = await fetch(url, {
     ...options,
     headers: {
@@ -17,5 +32,11 @@ export async function apiFetch(
     throw new Error(msg);
   }
 
-  return res.json();
+  const data = await res.json();
+
+  if (method === "GET") {
+    setCached(cacheKey, data);
+  }
+
+  return data;
 }
