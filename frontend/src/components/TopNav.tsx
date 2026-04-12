@@ -103,8 +103,26 @@ export default function TopNav() {
             minWidth: "0",
           }}
         >
-          <div style={{ fontWeight: 600, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user?.name}</div>
-          <div style={{ color: "#6b7280", fontSize: "0.8rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <div
+            style={{
+              fontWeight: 600,
+              color: "#111827",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {user?.name}
+          </div>
+          <div
+            style={{
+              color: "#6b7280",
+              fontSize: "0.8rem",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
             {user?.email}
           </div>
         </div>
