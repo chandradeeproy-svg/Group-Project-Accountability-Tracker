@@ -1,3 +1,5 @@
+import { Button } from "./Button";
+
 interface ConfirmModalProps {
   isOpen: boolean;
   title: string;
@@ -32,95 +34,108 @@ export default function ConfirmModal({
     }
   };
 
+  const backdropStyle: React.CSSProperties = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2000,
+    backdropFilter: "blur(4px)",
+  };
+
+  const dialogStyle: React.CSSProperties = {
+    backgroundColor: "#ffffff",
+    padding: "28px",
+    borderRadius: "12px",
+    width: "100%",
+    maxWidth: "420px",
+    boxShadow:
+      "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+    textAlign: "center",
+  };
+
+  const iconContainerStyle: React.CSSProperties = {
+    width: "52px",
+    height: "52px",
+    backgroundColor: `${getButtonColor()}15`,
+    color: getButtonColor(),
+    borderRadius: "12px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto 16px",
+    fontSize: "24px",
+  };
+
+  const titleStyle: React.CSSProperties = {
+    margin: "0 0 8px",
+    fontSize: "1.25rem",
+    color: "#111827",
+    fontWeight: 600,
+  };
+
+  const messageStyle: React.CSSProperties = {
+    margin: 0,
+    color: "#6b7280",
+    lineHeight: "1.5",
+    fontSize: "0.95rem",
+  };
+
+  const buttonsContainerStyle: React.CSSProperties = {
+    display: "flex",
+    gap: "12px",
+    marginTop: "28px",
+  };
+
+  const handleConfirm = async () => {
+    await onConfirm();
+    onCancel();
+  };
+
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 2000,
-        backdropFilter: "blur(4px)",
-      }}
-      onClick={onCancel}
-    >
+    <div style={backdropStyle} onClick={onCancel} role="presentation">
       <div
-        style={{
-          backgroundColor: "#ffffff",
-          padding: "24px",
-          borderRadius: "16px",
-          width: "100%",
-          maxWidth: "400px",
-          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-          textAlign: "center",
-        }}
+        style={dialogStyle}
         onClick={(e) => e.stopPropagation()}
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        aria-describedby="modal-message"
       >
         <div style={{ marginBottom: "16px" }}>
-          <div
-            style={{
-              width: "48px",
-              height: "48px",
-              backgroundColor: `${getButtonColor()}15`,
-              color: getButtonColor(),
-              borderRadius: "12px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              margin: "0 auto 16px",
-              fontSize: "24px",
-            }}
-          >
+          <div style={iconContainerStyle}>
             {type === "danger" ? "⚠️" : type === "success" ? "✅" : "❓"}
           </div>
-          <h2 style={{ margin: "0 0 8px", fontSize: "1.25rem", color: "#111827" }}>{title}</h2>
-          <p style={{ margin: 0, color: "#6b7280", lineHeight: "1.5" }}>{message}</p>
+          <h2 id="modal-title" style={titleStyle}>
+            {title}
+          </h2>
+          <p id="modal-message" style={messageStyle}>
+            {message}
+          </p>
         </div>
 
-        <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
-          <button
-            onClick={onCancel}
-            style={{
-              flex: 1,
-              padding: "10px",
-              borderRadius: "8px",
-              border: "1px solid #e5e7eb",
-              backgroundColor: "#ffffff",
-              color: "#374151",
-              fontSize: "0.95rem",
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "background-color 0.2s",
-            }}
-            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f9fafb")}
-            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
-          >
+        <div style={buttonsContainerStyle}>
+          <Button onClick={onCancel} variant="outline" style={{ flex: 1 }}>
             {cancelText}
-          </button>
-          <button
-            onClick={onConfirm}
-            style={{
-              flex: 1,
-              padding: "10px",
-              borderRadius: "8px",
-              border: "none",
-              backgroundColor: getButtonColor(),
-              color: "#ffffff",
-              fontSize: "0.95rem",
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "opacity 0.2s",
-            }}
-            onMouseOver={(e) => (e.currentTarget.style.opacity = "0.9")}
-            onMouseOut={(e) => (e.currentTarget.style.opacity = "1")}
+          </Button>
+          <Button
+            onClick={handleConfirm}
+            variant={
+              type === "danger"
+                ? "danger"
+                : type === "success"
+                  ? "success"
+                  : "primary"
+            }
+            style={{ flex: 1 }}
           >
             {confirmText}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

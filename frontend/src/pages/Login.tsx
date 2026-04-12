@@ -2,119 +2,165 @@ import { useAuth } from "../auth/AuthContext";
 import { useState } from "react";
 import { login as loginApi } from "../api/authApi";
 import { Link } from "react-router-dom";
+import { Button } from "../components/Button";
+import { FormInput } from "../components/FormInput";
+import { useToast } from "../context/ToastContext";
 
 export default function Login() {
   const { login } = useAuth();
+  const { addToast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {},
+  );
   const [loading, setLoading] = useState(false);
+
+  const validateForm = () => {
+    const newErrors: typeof errors = {};
+    if (!email) newErrors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      newErrors.email = "Invalid email format";
+    if (!password) newErrors.password = "Password is required";
+    else if (password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (!email || !password) return;
-    
+    if (!validateForm()) return;
+
     setLoading(true);
     try {
       const data = await loginApi(email, password);
       login(data.user, data.token);
+      addToast("Welcome back!", "success");
     } catch (error) {
+      addToast("Login failed. Please check your credentials.", "error");
       console.error("Login failed:", error);
-      alert("Login failed: " + (error instanceof Error ? error.message : String(error)));
     } finally {
       setLoading(false);
     }
   }
 
+  const containerStyle: React.CSSProperties = {
+    width: "100vw",
+    height: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+    overflow: "hidden",
+    fontFamily: "inherit",
+  };
+
+  const cardStyle: React.CSSProperties = {
+    width: "100%",
+    maxWidth: "420px",
+    background: "#ffffff",
+    padding: "40px",
+    borderRadius: "16px",
+    boxShadow: "0 20px 25px rgba(0, 0, 0, 0.15)",
+  };
+
+  const headerStyle: React.CSSProperties = {
+    marginBottom: "32px",
+    textAlign: "center",
+  };
+
+  const iconStyle: React.CSSProperties = {
+    fontSize: "3.5rem",
+    marginBottom: "12px",
+  };
+
+  const titleStyle: React.CSSProperties = {
+    margin: 0,
+    color: "#111827",
+    fontSize: "1.75rem",
+    fontWeight: 700,
+    marginBottom: "8px",
+  };
+
+  const subtitleStyle: React.CSSProperties = {
+    color: "#6b7280",
+    fontSize: "0.95rem",
+    margin: 0,
+    marginTop: "4px",
+  };
+
+  const formStyle: React.CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+  };
+
+  const linkStyle: React.CSSProperties = {
+    marginTop: "24px",
+    textAlign: "center",
+    color: "#6b7280",
+    fontSize: "0.95rem",
+  };
+
   return (
-    <div style={{
-      width: "100vw",
-      height: "100vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-      overflow: "hidden"
-    }}>
-      <div style={{
-        width: "100%",
-        maxWidth: "400px",
-        background: "rgba(255, 255, 255, 0.95)",
-        padding: "40px",
-        borderRadius: "20px",
-        boxShadow: "0 15px 35px rgba(0,0,0,0.2)",
-        textAlign: "center"
-      }}>
-        <div style={{ marginBottom: "30px" }}>
-            <div style={{ fontSize: "3rem", marginBottom: "10px" }}>🎯</div>
-            <h1 style={{ margin: 0, color: "#333", fontSize: "1.8rem" }}>Welcome Back</h1>
-            <p style={{ color: "#666", marginTop: "5px" }}>Login to your accountability tracker</p>
+    <div style={containerStyle}>
+      <div style={cardStyle}>
+        <div style={headerStyle}>
+          <div style={iconStyle}>🎯</div>
+          <h1 style={titleStyle}>Welcome Back</h1>
+          <p style={subtitleStyle}>Group Project Accountability Tracker</p>
         </div>
 
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: "20px", textAlign: "left" }}>
-            <label style={{ display: "block", marginBottom: "8px", color: "#555", fontWeight: "600", fontSize: "0.9rem" }}>Email Address</label>
-            <input 
-              type="email"
-              placeholder="Enter email" 
-              required
-              onChange={e => setEmail(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "12px 15px",
-                borderRadius: "10px",
-                border: "1px solid #ddd",
-                outline: "none",
-                fontSize: "1rem",
-                transition: "border-color 0.2s",
-                boxSizing: "border-box"
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: "30px", textAlign: "left" }}>
-            <label style={{ display: "block", marginBottom: "8px", color: "#555", fontWeight: "600", fontSize: "0.9rem" }}>Password</label>
-            <input 
-              type="password" 
-              placeholder="Enter password" 
-              required
-              onChange={e => setPassword(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "12px 15px",
-                borderRadius: "10px",
-                border: "1px solid #ddd",
-                outline: "none",
-                fontSize: "1rem",
-                transition: "border-color 0.2s",
-                boxSizing: "border-box"
-              }}
-            />
-          </div>
-
-          <button 
-            type="submit"
-            disabled={loading}
-            style={{
-              width: "100%",
-              padding: "14px",
-              borderRadius: "10px",
-              border: "none",
-              backgroundColor: "#667eea",
-              color: "white",
-              fontSize: "1rem",
-              fontWeight: "bold",
-              cursor: loading ? "not-allowed" : "pointer",
-              boxShadow: "0 4px 6px rgba(102, 126, 234, 0.4)",
-              transition: "transform 0.2s, background-color 0.2s"
+        <form onSubmit={handleLogin} style={formStyle}>
+          <FormInput
+            type="email"
+            label="Email Address"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (errors.email) setErrors({ ...errors, email: undefined });
             }}
+            error={errors.email}
+          />
+
+          <FormInput
+            type="password"
+            label="Password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (errors.password)
+                setErrors({ ...errors, password: undefined });
+            }}
+            error={errors.password}
+          />
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="md"
+            loading={loading}
+            style={{ marginTop: "8px" }}
           >
             {loading ? "Logging in..." : "Login"}
-          </button>
+          </Button>
         </form>
 
-        <p style={{ marginTop: "25px", color: "#666", fontSize: "0.95rem" }}>
-          Don't have an account? <Link to="/register" style={{ color: "#667eea", fontWeight: "bold", textDecoration: "none" }}>Sign Up</Link>
-        </p>
+        <div style={linkStyle}>
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            style={{
+              color: "#4f46e5",
+              fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            Sign Up
+          </Link>
+        </div>
       </div>
     </div>
   );

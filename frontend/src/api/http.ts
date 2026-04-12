@@ -3,7 +3,7 @@ import { getCached, setCached, clearCache } from "./cache";
 export async function apiFetch(
   url: string,
   options: RequestInit = {},
-  token?: string
+  token?: string,
 ) {
   const method = options.method || "GET";
   const cacheKey = `${method}:${url}`;
@@ -23,8 +23,8 @@ export async function apiFetch(
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers
-    }
+      ...options.headers,
+    },
   });
 
   if (!res.ok) {
