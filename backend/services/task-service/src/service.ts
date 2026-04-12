@@ -13,7 +13,7 @@ export async function createTask(data: {
     `
         INSERT INTO tasks
         
-        (taskId,projectId,ownerId,title,status,deadline)
+        ("taskid","projectid","ownerid","title","status","deadline")
         VALUES ($1,$2,$3,$4,'CREATED',$5)`,
     [taskId, data.projectId, data.ownerId, data.title, data.deadline ? data.deadline : null],
   );
@@ -33,7 +33,7 @@ export async function updateTaskStatus(
   status: "IN_PROGRESS" | "DONE" | "CANCELLED",
 ) {
   const res = await pool.query(
-    `SELECT ownerId, projectId, status, title FROM tasks WHERE taskId=$1`,
+    `SELECT "ownerid" AS "ownerId", "projectid" AS "projectId", "status", "title" FROM tasks WHERE "taskid"=$1`,
     [taskId],
   );
 
@@ -43,7 +43,7 @@ export async function updateTaskStatus(
 
   const task = res.rows[0];
 
-  if (task.ownerid !== userId) {
+  if (task.ownerId !== userId) {
     throw new Error("Only the task owner can update the status");
   }
 
@@ -51,13 +51,13 @@ export async function updateTaskStatus(
     return;
   }
 
-  await pool.query(`UPDATE tasks SET status = $1 WHERE taskId=$2`, [
+  await pool.query(`UPDATE tasks SET status = $1 WHERE "taskid"=$2`, [
     status,
     taskId,
   ]);
 
   await recordEvent({
-    project_id: task.projectid,
+    project_id: task.projectId,
     user_id: userId,
     type: "TASK_STATUS_CHANGED",
     source: "task-service",
@@ -65,14 +65,22 @@ export async function updateTaskStatus(
       taskId, 
       from: task.status, 
       to: status,
-      taskTitle: task.title // Added title for better logs
+      taskTitle: task.title 
     },
   });
 }
 
 export async function listTask(projectId: string) {
   const res = await pool.query(
-    `SELECT * FROM tasks WHERE projectId=$1 ORDER BY createdAt DESC`,
+    `SELECT 
+      "taskid" AS "taskId", 
+      "projectid" AS "projectId", 
+      "ownerid" AS "ownerId", 
+      "title", 
+      "status", 
+      "deadline", 
+      "createdat" AS "createdAt" 
+     FROM tasks WHERE "projectid"=$1 ORDER BY "createdat" DESC`,
     [projectId],
   );
   return res.rows;
@@ -80,18 +88,36 @@ export async function listTask(projectId: string) {
 
 export async function listUserTasks(userId: string) {
   const res = await pool.query(
-    `SELECT t.*, p.name as projectName, p.ownerId as projectOwnerId
+    `SELECT 
+        t."taskid" AS "taskId", 
+        t."projectid" AS "projectId", 
+        t."ownerid" AS "ownerId", 
+        t."title", 
+        t."status", 
+        t."deadline", 
+        t."createdat" AS "createdAt",
+        p."name" as "projectName", 
+        p."ownerid" as "projectOwnerId"
      FROM tasks t
-     JOIN projects p ON t.projectId = p.projectId
-     WHERE t.ownerId=$1 
-     ORDER BY t.createdAt DESC`,
+     JOIN projects p ON t."projectid" = p."projectid"
+     WHERE t."ownerid"=$1 
+     ORDER BY t."createdat" DESC`,
     [userId],
   );
   return res.rows;
 }
+
 export async function approveTask(taskId: string, userId: string) {
+  // Join with projects to determine if the user is the project owner
   const res = await pool.query(
-    `SELECT projectId, status, title FROM tasks WHERE taskId=$1`,
+    `SELECT 
+        t."projectid" AS "projectId", 
+        t."status", 
+        t."title", 
+        p."ownerid" AS "projectOwnerId"
+     FROM tasks t
+     JOIN projects p ON t."projectid" = p."projectid"
+     WHERE t."taskid"=$1`,
     [taskId],
   );
 
@@ -101,12 +127,22 @@ export async function approveTask(taskId: string, userId: string) {
 
   const task = res.rows[0];
 
-  await pool.query(`UPDATE tasks SET status = 'APPROVED' WHERE taskId=$1`, [
+  // SECURITY FIX: Verify the user is the project owner
+  if (task.projectOwnerId !== userId) {
+    throw new Error("Unauthorized: Only the project owner can approve tasks");
+  }
+
+  // LOGIC FIX: Only allow approving tasks that are 'DONE'
+  if (task.status !== 'DONE') {
+    throw new Error("Only tasks in 'DONE' status can be approved");
+  }
+
+  await pool.query(`UPDATE tasks SET status = 'APPROVED' WHERE "taskid"=$1`, [
     taskId,
   ]);
 
   await recordEvent({
-    project_id: task.projectid,
+    project_id: task.projectId,
     user_id: userId, 
     type: "TASK_APPROVED" as any, 
     source: "task-service",
@@ -116,7 +152,7 @@ export async function approveTask(taskId: string, userId: string) {
 
 export async function getProjectActivity(projectId: string) {
   const res = await pool.query(
-    `SELECT e.*, u.name as userName 
+    `SELECT e.*, u.name as "userName" 
      FROM evidence_events e
      LEFT JOIN users u ON e.user_id = u.id
      WHERE e.project_id = $1
@@ -128,7 +164,7 @@ export async function getProjectActivity(projectId: string) {
 
 export async function getAllUserActivity(userId: string) {
   const res = await pool.query(
-    `SELECT e.*, u.name as userName, p.name as projectName
+    `SELECT e.*, u.name as "userName", p.name as "projectName"
      FROM evidence_events e
      LEFT JOIN users u ON e.user_id = u.id
      JOIN projects p ON e.project_id = p.projectId

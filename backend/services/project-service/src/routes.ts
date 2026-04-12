@@ -50,6 +50,12 @@ router.post("/projects/:projectId/members", authenticate, async (req: AuthReques
       return res.status(400).json({ error: "userId is required" });
     }
 
+    // SECURITY FIX: Only the owner can add members
+    const project = await projectService.getProjectById(projectId);
+    if (project.ownerId !== req.userId) {
+      return res.status(403).json({ error: "Only the project owner can add members" });
+    }
+
     await projectService.addProjectMember(projectId, String(userId), role);
     res.status(201).json({ message: "Member added successfully" });
   } catch (error: any) {

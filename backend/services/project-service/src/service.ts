@@ -5,14 +5,14 @@ export async function createProject(name: string, ownerId: string) {
   const projectId = uuid();
   
   await pool.query(
-    `INSERT INTO projects (projectId, name, ownerId, createdAt) 
+    `INSERT INTO projects ("projectid", "name", "ownerid", "createdat") 
      VALUES ($1, $2, $3, NOW())`,
     [projectId, name, ownerId]
   );
 
   // Add owner as a member
   await pool.query(
-    `INSERT INTO project_members (projectId, userId, role, joinedAt) 
+    `INSERT INTO project_members ("projectid", "userid", "role", "joinedat") 
      VALUES ($1, $2, 'OWNER', NOW())`,
     [projectId, ownerId]
   );
@@ -22,11 +22,11 @@ export async function createProject(name: string, ownerId: string) {
 
 export async function getUserProjects(userId: string) {
   const result = await pool.query(
-    `SELECT p.projectId, p.name, p.ownerId, p.createdAt, pm.role
+    `SELECT p."projectid" AS "projectId", p."name", p."ownerid" AS "ownerId", p."createdat" AS "createdAt", pm."role"
      FROM projects p
-     INNER JOIN project_members pm ON p.projectId = pm.projectId
-     WHERE pm.userId = $1
-     ORDER BY p.createdAt DESC`,
+     INNER JOIN project_members pm ON p."projectid" = pm."projectid"
+     WHERE pm."userid" = $1
+     ORDER BY p."createdat" DESC`,
     [userId]
   );
 
@@ -35,7 +35,8 @@ export async function getUserProjects(userId: string) {
 
 export async function getProjectById(projectId: string) {
   const result = await pool.query(
-    `SELECT * FROM projects WHERE projectId = $1`,
+    `SELECT "projectid" AS "projectId", "name", "ownerid" AS "ownerId", "createdat" AS "createdAt" 
+     FROM projects WHERE "projectid" = $1`,
     [projectId]
   );
 
@@ -52,20 +53,20 @@ export async function addProjectMember(
   role: string = "MEMBER"
 ) {
   await pool.query(
-    `INSERT INTO project_members (projectId, userId, role, joinedAt) 
+    `INSERT INTO project_members ("projectid", "userid", "role", "joinedat") 
      VALUES ($1, $2, $3, NOW())
-     ON CONFLICT (projectId, userId) DO NOTHING`,
+     ON CONFLICT ("projectid", "userid") DO NOTHING`,
     [projectId, userId, role]
   );
 }
 
 export async function getProjectMembers(projectId: string) {
   const result = await pool.query(
-    `SELECT pm.userId, pm.role, pm.joinedAt, u.name, u.email
+    `SELECT pm."userid" AS "userId", pm."role", pm."joinedat" AS "joinedAt", u."name", u."email"
      FROM project_members pm
-     INNER JOIN users u ON pm.userId = u.id
-     WHERE pm.projectId = $1
-     ORDER BY pm.joinedAt ASC`,
+     INNER JOIN users u ON pm."userid" = u."id"
+     WHERE pm."projectid" = $1
+     ORDER BY pm."joinedat" ASC`,
     [projectId]
   );
 
