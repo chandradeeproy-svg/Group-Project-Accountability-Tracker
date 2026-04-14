@@ -2,10 +2,10 @@
   "name": "@gpa/task",
   "version": "1.0.0",
   "description": "Task management service",
-  "main": "src/index.ts",
+  "main": "src/server.ts",
   "scripts": {
-    "start": "node dist/services/task-service/src/index.js",
-    "dev": "nodemon src/index.ts",
+    "start": "node dist/services/task-service/src/server.js",
+    "dev": "nodemon src/server.ts",
     "build": "tsc"
   },
   "dependencies": {

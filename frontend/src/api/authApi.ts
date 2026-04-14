@@ -16,6 +16,6 @@ export function register(name: string, email: string, password: string) {
   });
 }
 
-export function getMe(token: string) {
-  return apiFetch(`${BASE}/auth/me`, {}, token);
-}
+// export function getMe(token: string) {
+//   return apiFetch(`${BASE}/auth/me`, {}, token);
+// }

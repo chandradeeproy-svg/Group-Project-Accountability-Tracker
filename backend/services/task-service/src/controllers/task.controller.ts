@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import * as taskService from "./service";
-import { createTaskSchema, updateStatusScehma } from "./schema";
-import { AuthRequest } from "./middleware/auth";
+import * as taskService from "../services/task.service";
+import { createTaskSchema, updateStatusScehma } from "../schema";
+import { AuthRequest } from "../middlewares/auth.middleware";
 
 export async function createTaskController(req: AuthRequest, res: Response) {
   const body = { ...req.body };

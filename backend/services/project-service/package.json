@@ -2,10 +2,10 @@
   "name": "@gpa/project",
   "version": "1.0.0",
   "description": "Project management service",
-  "main": "src/index.ts",
+  "main": "src/server.ts",
   "scripts": {
-    "start": "node dist/services/project-service/src/index.js",
-    "dev": "nodemon src/index.ts",
+    "start": "node dist/services/project-service/src/server.js",
+    "dev": "nodemon src/server.ts",
     "build": "tsc"
   },
   "dependencies": {
@@ -16,7 +16,8 @@
     "jsonwebtoken": "^9.0.3",
     "module-alias": "^2.2.3",
     "pg": "^8.11.5",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { pool } from "../config/db";
+import { pool } from "@gpa/shared";
 import { authenticate, AuthRequest } from "../middlewares/auth.middleware";
 
 const router = Router();

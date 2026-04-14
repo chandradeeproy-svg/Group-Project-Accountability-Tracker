@@ -1,15 +1,17 @@
 import { Request, Response } from "express";
 import { registerUser, loginUser } from "../services/auth.service";
 import { signToken } from "../utils/jwt";
-
+import { registerSchema, loginSchema } from "../schema";
 
 export const registerController=async(req:Request,res:Response)=>{
     try {
-        const {name,email,password}=req.body;
+        const parsed = registerSchema.safeParse(req.body);
 
-        if(!name||!email||!password){
-            return res.status(400).json({message:"All fields are required"});
+        if(!parsed.success){
+            return res.status(400).json({message: parsed.error.issues[0].message, error: parsed.error});
         }
+
+        const {name,email,password} = parsed.data;
 
         const user=await registerUser(name,email,password);
         const token=signToken({userId:user.id,email:user.email});
@@ -22,11 +24,13 @@ export const registerController=async(req:Request,res:Response)=>{
 
 export const loginController=async(req:Request,res:Response)=>{
     try {
-        const {email,password}=req.body;
+        const parsed = loginSchema.safeParse(req.body);
 
-        if(!email||!password){
-            return res.status(400).json({message:"All fields are required"});
+        if(!parsed.success){
+            return res.status(400).json({message: parsed.error.issues[0].message, error: parsed.error});
         }
+
+        const {email,password} = parsed.data;
 
         const user = await loginUser(email,password);
         const token=signToken({userId:user.id,email:user.email});
