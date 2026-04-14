@@ -3,18 +3,26 @@
 ## 🔥 5 Key Code Patterns You Should Know
 
 ### Pattern 1: Controller → Service → Database Flow
+
 ```typescript
 // CONTROLLER: Parse input, validate, orchestrate
-export async function updateTaskStatusController(req: AuthRequest, res: Response) {
-  const parsed = updateStatusScehma.safeParse(req.body);  // Validate
+export async function updateTaskStatusController(
+  req: AuthRequest,
+  res: Response,
+) {
+  const parsed = updateStatusScehma.safeParse(req.body); // Validate
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
-  
-  const userId = req.userId;  // From JWT middleware
+
+  const userId = req.userId; // From JWT middleware
   if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
   try {
     // SERVICE: Business logic
-    await taskService.updateTaskStatus(req.params.id, userId, parsed.data.status);
+    await taskService.updateTaskStatus(
+      req.params.id,
+      userId,
+      parsed.data.status,
+    );
     res.json({ message: "Task status updated successfully" });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -28,13 +36,19 @@ export async function updateTaskStatus(
   status: "IN_PROGRESS" | "DONE" | "CANCELLED",
 ) {
   // AUTHORIZATION: Only owner can update
-  const res = await pool.query(`SELECT ownerId FROM tasks WHERE taskId=$1`, [taskId]);
+  const res = await pool.query(`SELECT ownerId FROM tasks WHERE taskId=$1`, [
+    taskId,
+  ]);
   const task = res.rows[0];
-  if (task.ownerid !== userId) throw new Error("Only the task owner can update");
-  
+  if (task.ownerid !== userId)
+    throw new Error("Only the task owner can update");
+
   // DATABASE: Update task
-  await pool.query(`UPDATE tasks SET status = $1 WHERE taskId=$2`, [status, taskId]);
-  
+  await pool.query(`UPDATE tasks SET status = $1 WHERE taskId=$2`, [
+    status,
+    taskId,
+  ]);
+
   // EVENT: Record for audit trail
   await recordEvent({
     project_id: task.projectid,
@@ -45,23 +59,31 @@ export async function updateTaskStatus(
   });
 }
 ```
+
 **Interview talking point:** "I follow a clear separation between controllers (HTTP handling), services (business logic), and database access. This makes code testable and maintainable."
 
 ---
 
 ### Pattern 2: Authorization Middleware
+
 ```typescript
 // EVERYWHERE: Only authenticated requests can proceed
-export function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
+export function authenticate(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: "No token provided" });
 
-  const token = authHeader.split(" ")[1];  // "Bearer <token>"
-  
+  const token = authHeader.split(" ")[1]; // "Bearer <token>"
+
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-    req.userId = decoded.userId;  // Attach to request
-    next();  // Proceed to controller
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: string;
+    };
+    req.userId = decoded.userId; // Attach to request
+    next(); // Proceed to controller
   } catch (error) {
     return res.status(401).json({ error: "Invalid token" });
   }
@@ -70,15 +92,19 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
 // USAGE: Apply to protected routes
 router.patch("/tasks/:id/status", authenticate, updateTaskStatusController);
 ```
+
 **Interview talking point:** "I implemented middleware-based authentication so every protected endpoint automatically verifies the JWT before running business logic."
 
 ---
 
 ### Pattern 3: Immutable Event Recording
+
 ```typescript
 // This function is called EVERY TIME something important happens
 // Events can NEVER be deleted or modified (append-only)
-export async function recordEvent(event: Omit<EvidenceEvent, "event_id" | "timestamp">) {
+export async function recordEvent(
+  event: Omit<EvidenceEvent, "event_id" | "timestamp">,
+) {
   await pool.query(
     `INSERT INTO evidence_events
     (event_id, project_id, user_id, type, source, timestamp, metadata)
@@ -103,45 +129,55 @@ await recordEvent({
   metadata: { taskId, title },
 });
 ```
+
 **Interview talking point:** "I implemented an append-only event log that serves as an immutable audit trail. This is the same pattern used in financial systems and is perfect for compliance."
 
 ---
 
 ### Pattern 4: Secure Password Hashing
+
 ```typescript
 import bcrypt from "bcrypt";
 
-export const registerUser = async(name: string, email: string, password: string) => {
+export const registerUser = async (
+  name: string,
+  email: string,
+  password: string,
+) => {
   // Check if user already exists
-  const existing = await pool.query(`select id from users where email=$1`, [email]);
-  if(existing.rows[0]) throw new Error("User already exists");
-  
+  const existing = await pool.query(`select id from users where email=$1`, [
+    email,
+  ]);
+  if (existing.rows[0]) throw new Error("User already exists");
+
   // Hash password with 10 salt rounds (takes ~100ms per hash)
   const hashedPassword = await bcrypt.hash(password, 10);
-  
+
   // Store hashed password, NOT plaintext
   const result = await pool.query(
     `insert into users (id, name, email, password) values ($1, $2, $3, $4)`,
-    [uuid(), name, email, hashedPassword]
+    [uuid(), name, email, hashedPassword],
   );
-  return result.rows[0];  // Return user WITHOUT password
+  return result.rows[0]; // Return user WITHOUT password
 };
 
-export const loginUser = async(email: string, password: string) => {
+export const loginUser = async (email: string, password: string) => {
   const user = await pool.query(`select * from users where email=$1`, [email]);
-  
+
   // Compare plaintext password with stored hash
   const isValid = await bcrypt.compare(password, user.rows[0].password);
-  if(!isValid) throw new Error("Invalid password");
-  
-  return { id: user.id, name: user.name, email: user.email };  // No password
+  if (!isValid) throw new Error("Invalid password");
+
+  return { id: user.id, name: user.name, email: user.email }; // No password
 };
 ```
+
 **Interview talking point:** "I use bcrypt with 10 salt rounds, which means even if someone steals the database, they can't brute-force passwords. Each hash takes ~100ms to compute, making attacks infeasible."
 
 ---
 
 ### Pattern 5: React Context for State Management
+
 ```typescript
 // Create context for auth state
 type AuthCtx = {
@@ -190,6 +226,7 @@ function MyComponent() {
   return <div>Hello {user?.name}</div>;
 }
 ```
+
 **Interview talking point:** "I use React Context API instead of prop-drilling, which eliminates the need to pass props through 5 levels of components. I also persist auth state to localStorage so users stay logged in after refresh."
 
 ---
@@ -199,6 +236,7 @@ function MyComponent() {
 ### Q: "Walk me through what happens when a user registers."
 
 **Answer:**
+
 1. User enters name, email, password in frontend
 2. Frontend calls `POST /auth/register` with these credentials
 3. Backend receives request:
@@ -225,13 +263,17 @@ function MyComponent() {
 I have two layers of protection:
 
 **Layer 1: Authorization Check in Service**
+
 ```typescript
 // Only owner of task can update it
-const task = await pool.query(`SELECT ownerId FROM tasks WHERE taskId=$1`, [taskId]);
+const task = await pool.query(`SELECT ownerId FROM tasks WHERE taskId=$1`, [
+  taskId,
+]);
 if (task.ownerid !== userId) throw new Error("Only the task owner can update");
 ```
 
 **Layer 2: Token-Based Identification**
+
 - Every request must include `Authorization: Bearer <token>`
 - Middleware decodes token and extracts userId
 - This userId is passed to the service function
@@ -245,13 +287,15 @@ Without valid token, user can't even reach the endpoint, so even someone with da
 
 **Answer:**
 Server-side timestamps! Here's the flow:
+
 ```typescript
 // Event is recorded with NOW() - server's current time
 `INSERT INTO evidence_events (..., timestamp, ...) 
- VALUES (..., NOW(), ...)`
+ VALUES (..., NOW(), ...)`;
 ```
 
 **Why this matters:**
+
 - Client cannot set timestamp (NOW() is computed by server)
 - Even if user hacks their browser/API client, server uses current time
 - Timestamps are stored in immutable append-only table
@@ -264,6 +308,7 @@ The `metadata` field can store any custom data, but the timestamp is always comp
 ### Q: "How would you scale this to handle 1M concurrent users?"
 
 **Answer:**
+
 1. **Database:**
    - Implement read replicas for SELECT queries
    - Use sharding by projectId to distribute write load
@@ -297,18 +342,21 @@ The `metadata` field can store any custom data, but the timestamp is always comp
 I use parameterized queries everywhere:
 
 **SAFE (parameterized):**
+
 ```typescript
-pool.query(`SELECT * FROM users WHERE email=$1`, [email])
+pool.query(`SELECT * FROM users WHERE email=$1`, [email]);
 ```
 
 **UNSAFE (string concatenation):**
+
 ```typescript
-pool.query(`SELECT * FROM users WHERE email='${email}'`)  // ❌ SQL INJECTION!
+pool.query(`SELECT * FROM users WHERE email='${email}'`); // ❌ SQL INJECTION!
 ```
 
 With parameterized queries, the database driver ensures `email` value is treated as data, not code. So even if user enters `' OR '1'='1`, it's treated as a literal string.
 
 Additional security layers:
+
 - Input validation with Zod schema
 - Bcrypt for password hashing
 - JWT for token-based auth
@@ -320,6 +368,7 @@ Additional security layers:
 ### Q: "What would you do differently in a rewrite?"
 
 **Answer:**
+
 1. **Event Sourcing:** Store only immutable events, derive current state from events
 2. **CQRS:** Separate read model (for queries) from write model (for events)
 3. **Message Queue:** Use Kafka for inter-service communication instead of direct calls
@@ -333,14 +382,14 @@ Additional security layers:
 
 ## 📊 Metrics You Can Quote
 
-| Metric | Value | Why It Matters |
-|--------|-------|----------------|
-| JWT Expiration | 7 days | Balance between security and UX |
-| Bcrypt Salt Rounds | 10 | Makes password cracking infeasible (~100ms per try) |
-| Average API Response Time | <100ms | With caching implemented |
-| Events per Project/Week | ~200 | Typical active project |
-| UUID Generation | O(1) | No database coordination needed |
-| Parameterized Queries | 100% | Complete SQL injection prevention |
+| Metric                    | Value  | Why It Matters                                      |
+| ------------------------- | ------ | --------------------------------------------------- |
+| JWT Expiration            | 7 days | Balance between security and UX                     |
+| Bcrypt Salt Rounds        | 10     | Makes password cracking infeasible (~100ms per try) |
+| Average API Response Time | <100ms | With caching implemented                            |
+| Events per Project/Week   | ~200   | Typical active project                              |
+| UUID Generation           | O(1)   | No database coordination needed                     |
+| Parameterized Queries     | 100%   | Complete SQL injection prevention                   |
 
 ---
 
@@ -361,7 +410,7 @@ Additional security layers:
 
 ## ❌ What NOT to Say in Interview
 
-- ❌ "I stored passwords in plaintext" 
+- ❌ "I stored passwords in plaintext"
 - ❌ "I use string concatenation for SQL queries"
 - ❌ "I put all state in a single Redux store"
 - ❌ "I didn't add any authentication"
@@ -374,9 +423,11 @@ Additional security layers:
 ## 🚀 How to End the Interview Strong
 
 **Closing statement:**
+
 > "This project taught me the importance of building systems for compliance and auditability. I chose immutable event logging, which is a pattern used in financial systems and blockchains. I also emphasized security from the start—bcrypt for passwords, JWT for tokens, parameterized queries to prevent injection. If I were to rebuild it, I'd add event sourcing and CQRS for better scalability. Overall, it's a good example of full-stack thinking: understanding both frontend state management and backend system design."
 
 **Ask them questions (shows genuine interest):**
+
 - "What's your current tech stack for authentication?"
 - "How do you handle audit logging at your company?"
 - "Do you use microservices or monolith?"
