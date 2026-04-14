@@ -5,7 +5,6 @@ import ConfirmModal from "../components/ConfirmModal";
 import { useConfirmModal } from "../hooks/useConfirmModal";
 import { useToast } from "../context/ToastContext";
 import { Button } from "../components/Button";
-import { StatusBadge } from "../components/StatusBadge";
 
 export default function MyTasks() {
   const { token } = useAuth();
@@ -42,83 +41,25 @@ export default function MyTasks() {
     }
   };
 
-  if (loading) return <div style={{ padding: "20px" }}>Loading tasks...</div>;
-
-  const pageStyle: React.CSSProperties = {
-    padding: "24px",
-    maxWidth: "1000px",
-    margin: "0 auto",
-    width: "100%",
-  };
-
-  const headerStyle: React.CSSProperties = {
-    marginBottom: "28px",
-  };
-
-  const emptyStateStyle: React.CSSProperties = {
-    padding: "60px 20px",
-    textAlign: "center",
-    border: "2px dashed #e5e7eb",
-    borderRadius: "8px",
-    marginTop: "24px",
-    backgroundColor: "#f9fafb",
-    color: "#6b7280",
-  };
-
-  const tasksContainerStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-    marginTop: "24px",
-  };
-
-  const taskItemStyle: React.CSSProperties = {
-    padding: "16px",
-    backgroundColor: "#ffffff",
-    border: "1px solid #e5e7eb",
-    borderRadius: "8px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: "16px",
-    transition: "box-shadow 0.2s ease",
-    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-  };
-
-  const taskInfoStyle: React.CSSProperties = {
-    flex: 1,
-    minWidth: 0,
-  };
-
-  const taskActionsStyle: React.CSSProperties = {
-    display: "flex",
-    gap: "8px",
-    flexShrink: 0,
-  };
+  if (loading) return <div className="page-wrapper"><div className="text-center">Loading tasks...</div></div>;
 
   return (
-    <div style={pageStyle}>
-      <div style={headerStyle}>
-        <h1 style={{ marginBottom: "8px", fontSize: "2rem", color: "#111827" }}>
-          My Tasks
-        </h1>
-        <p style={{ color: "#6b7280", fontSize: "1rem" }}>
-          Manage all tasks assigned to you across all projects.
+    <div className="page-wrapper fade-in" style={{ maxWidth: "1000px" }}>
+      <div style={{ marginBottom: "32px", borderBottom: "1px solid var(--color-border)", paddingBottom: "24px" }}>
+        <h1 style={{ fontSize: "2.5rem", fontWeight: 800, marginBottom: "8px" }}>My Tasks</h1>
+        <p style={{ color: "var(--color-text-secondary)", fontSize: "1.1rem" }}>
+          Manage all tasks assigned to you across all active projects.
         </p>
       </div>
 
       {tasks.length === 0 ? (
-        <div style={emptyStateStyle}>
-          <div style={{ fontSize: "3.5rem", marginBottom: "12px" }}>📋</div>
-          <p style={{ margin: 0, fontSize: "1.1rem", fontWeight: 500 }}>
-            No tasks assigned to you yet
-          </p>
-          <p style={{ margin: "8px 0 0 0", color: "#9ca3af" }}>
-            You're all caught up!
-          </p>
+        <div className="card text-center glass" style={{ padding: "80px 40px", borderStyle: "dashed" }}>
+          <div style={{ fontSize: "4rem", marginBottom: "20px" }}>🏖️</div>
+          <h2 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "8px" }}>No tasks assigned</h2>
+          <p style={{ color: "var(--color-text-tertiary)" }}>You're all caught up for now!</p>
         </div>
       ) : (
-        <div style={tasksContainerStyle}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           {tasks.map((task) => {
             const isOverdue =
               task.deadline &&
@@ -126,111 +67,78 @@ export default function MyTasks() {
               task.status !== "APPROVED" &&
               task.status !== "DONE";
 
-            const displayStatus = isOverdue
-              ? "overdue"
-              : task.status === "DONE"
-                ? "done"
-                : task.status === "IN_PROGRESS"
-                  ? "in-progress"
-                  : task.status === "APPROVED"
-                    ? "completed"
-                    : "pending";
-
             return (
-              <div key={task.taskid} style={taskItemStyle}>
-                <div style={taskInfoStyle}>
-                  <div
-                    style={{
-                      fontSize: "0.8rem",
-                      color: "#4f46e5",
-                      fontWeight: 600,
-                      marginBottom: "4px",
-                    }}
-                  >
-                    {task.projectname}
-                  </div>
-                  <h3
-                    style={{
-                      fontSize: "1.05rem",
-                      fontWeight: 600,
-                      color: "#111827",
-                      margin: "4px 0",
-                      wordBreak: "break-word",
-                    }}
-                  >
-                    {task.title}
-                  </h3>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "16px",
-                      marginTop: "10px",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <StatusBadge status={displayStatus} />
-                    {task.deadline && (
-                      <span
-                        style={{
-                          fontSize: "0.85rem",
-                          color: isOverdue ? "#ef4444" : "#6b7280",
-                          fontWeight: isOverdue ? 600 : 400,
-                        }}
-                      >
-                        📅 {new Date(task.deadline).toLocaleDateString()}
-                        {isOverdue && <strong> (OVERDUE)</strong>}
+              <div key={task.taskid} className="card animate-fade" style={{ transition: "transform 0.2s ease" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "24px" }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: "0.8rem", color: "var(--color-primary)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "4px" }}>
+                      {task.projectname}
+                    </div>
+                    <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "12px", color: "var(--color-text-primary)" }}>
+                      {task.title}
+                    </h3>
+                    
+                    <div style={{ display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap" }}>
+                      <span className={`badge ${
+                        task.status === "APPROVED" ? "badge-success" : 
+                        task.status === "DONE" ? "badge-success" : 
+                        task.status === "IN_PROGRESS" ? "badge-warning" : "badge-secondary"
+                      }`}>
+                        {task.status}
                       </span>
+                      
+                      {task.deadline && (
+                        <span style={{ 
+                          fontSize: "0.9rem", 
+                          color: isOverdue ? "var(--color-danger)" : "var(--color-text-tertiary)",
+                          fontWeight: isOverdue ? 700 : 400
+                        }}>
+                          📅 {new Date(task.deadline).toLocaleDateString()}
+                          {isOverdue && " (OVERDUE)"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: "12px" }}>
+                    {task.status === "CREATED" && (
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onClick={() =>
+                          askConfirm(
+                            "Start Task",
+                            "Begin working on this task?",
+                            () => handleStatusChange(task.taskid, "IN_PROGRESS"),
+                            "primary",
+                          )
+                        }
+                      >
+                        Start Task
+                      </Button>
+                    )}
+                    {task.status === "IN_PROGRESS" && (
+                      <Button
+                        size="sm"
+                        variant="success"
+                        onClick={() =>
+                          askConfirm(
+                            "Complete Task",
+                            "Have you finished your work?",
+                            () => handleStatusChange(task.taskid, "DONE"),
+                            "success",
+                          )
+                        }
+                      >
+                        Mark Done
+                      </Button>
+                    )}
+                    {(task.status === "APPROVED" || task.status === "DONE") && (
+                      <div className="badge badge-success" style={{ padding: "8px 16px", display: "flex", alignItems: "center", gap: "8px" }}>
+                        ✅ {task.status === "APPROVED" ? "Approved" : "Completed"}
+                      </div>
                     )}
                   </div>
-                </div>
-
-                <div style={taskActionsStyle}>
-                  {task.status === "CREATED" && (
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      onClick={() =>
-                        askConfirm(
-                          "Start Task",
-                          "Are you sure you want to start this task?",
-                          () => handleStatusChange(task.taskid, "IN_PROGRESS"),
-                          "primary",
-                        )
-                      }
-                    >
-                      Start
-                    </Button>
-                  )}
-                  {task.status === "IN_PROGRESS" && (
-                    <Button
-                      size="sm"
-                      variant="success"
-                      onClick={() =>
-                        askConfirm(
-                          "Mark Task Done",
-                          "Are you sure you have completed this task?",
-                          () => handleStatusChange(task.taskid, "DONE"),
-                          "success",
-                        )
-                      }
-                    >
-                      Complete
-                    </Button>
-                  )}
-                  {(task.status === "APPROVED" || task.status === "DONE") && (
-                    <div
-                      style={{
-                        padding: "4px 12px",
-                        backgroundColor: "#dcfce7",
-                        color: "#166534",
-                        borderRadius: "4px",
-                        fontWeight: 600,
-                        fontSize: "0.85rem",
-                      }}
-                    >
-                      ✅ {task.status === "APPROVED" ? "Approved" : "Done"}
-                    </div>
-                  )}
                 </div>
               </div>
             );

@@ -14,7 +14,6 @@ export default function Scores() {
     
     getProjects(token).then(async (projects) => {
         const scores = await Promise.all(projects.map(async (p: any) => {
-            // Get both tasks and actual members for the project
             const [tasks, members] = await Promise.all([
                 getTasksByProject(p.projectid, token),
                 getProjectMembers(p.projectid, token)
@@ -47,59 +46,67 @@ export default function Scores() {
     .finally(() => setLoading(false));
   }, [token, user]);
 
-  if (loading) return <p style={{ padding: "20px" }}>Calculating scores...</p>;
+  if (loading) return <div className="page-wrapper"><div className="text-center">Calculating scores...</div></div>;
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
-      <h1>Project Accountability Scores</h1>
-      <p style={{ color: "#666" }}>Performance breakdown for all members across your projects.</p>
+    <div className="page-wrapper fade-in">
+      <div style={{ marginBottom: "32px", borderBottom: "1px solid var(--color-border)", paddingBottom: "24px" }}>
+        <h1 style={{ fontSize: "2.5rem", fontWeight: 800, marginBottom: "8px" }}>Accountability Scores</h1>
+        <p style={{ color: "var(--color-text-secondary)", fontSize: "1.1rem" }}>
+          Performance breakdown for all members across your active projects.
+        </p>
+      </div>
 
       {projectScores.length === 0 ? (
-          <div style={{ padding: "50px", textAlign: "center", border: "1px dashed #ccc", borderRadius: "10px", color: "#666" }}>
-              You are not in any projects yet.
-          </div>
+        <div className="card text-center" style={{ borderStyle: "dashed", padding: "64px" }}>
+          <p style={{ color: "var(--color-text-tertiary)" }}>You are not in any projects yet.</p>
+        </div>
       ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "30px", marginTop: "20px" }}>
-              {projectScores.map(project => (
-                  <div key={project.id} style={{ padding: "25px", border: "1px solid #dee2e6", borderRadius: "12px", backgroundColor: "white", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-                      <h2 style={{ margin: "0 0 20px 0", color: "#007bff", borderBottom: "2px solid #f8f9fa", paddingBottom: "10px" }}>{project.name}</h2>
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
-                          {project.members.map((m: any) => (
-                              <div key={m.memberId} style={{ padding: "15px", border: "1px solid #f0f0f0", borderRadius: "8px", backgroundColor: "#fdfdfd" }}>
-                                  <div style={{ fontWeight: "bold", marginBottom: "10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                      <span style={{ fontSize: "1.1em" }}>
-                                          {m.memberId === user?.id ? (
-                                              <span>{m.memberName} <small style={{color: '#666', fontWeight: 'normal'}}>(Me)</small></span>
-                                          ) : m.memberName}
-                                      </span>
-                                      <span style={{ 
-                                          padding: '2px 8px', 
-                                          borderRadius: '12px', 
-                                          fontSize: '0.85em',
-                                          backgroundColor: m.score >= 70 ? "#d4edda" : m.score >= 40 ? "#fff3cd" : "#f8d7da",
-                                          color: m.score >= 70 ? "#155724" : m.score >= 40 ? "#856404" : "#721c24"
-                                      }}>
-                                          {m.score}%
-                                      </span>
-                                  </div>
-                                  <div style={{ height: "8px", backgroundColor: "#eee", borderRadius: "4px", overflow: "hidden", marginBottom: "10px" }}>
-                                      <div style={{ 
-                                          width: `${m.score}%`, 
-                                          height: "100%", 
-                                          backgroundColor: m.score >= 70 ? "#28a745" : m.score >= 40 ? "#ffc107" : "#dc3545",
-                                          transition: 'width 0.3s ease'
-                                      }}></div>
-                                  </div>
-                                  <div style={{ fontSize: "0.85em", color: "#666", display: 'flex', justifyContent: 'space-between' }}>
-                                      <span>{m.total} Total Tasks</span>
-                                      <span>{m.approved} Approved</span>
-                                  </div>
-                              </div>
-                          ))}
+        <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
+          {projectScores.map(project => (
+            <div key={project.id}>
+              <h2 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "20px", color: "var(--color-primary)" }}>
+                {project.name}
+              </h2>
+              <div className="grid grid-cols-2">
+                {project.members.map((m: any) => (
+                  <div key={m.memberId} className="card accent-border">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "16px" }}>
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: "1.1rem" }}>
+                          {m.memberName}
+                          {m.memberId === user?.id && <span style={{ color: "var(--color-primary)", marginLeft: "8px", fontWeight: 500 }}>(Me)</span>}
+                        </div>
+                        <div style={{ fontSize: "0.85rem", color: "var(--color-text-tertiary)", marginTop: "4px" }}>
+                          {m.approved} of {m.total} tasks approved
+                        </div>
                       </div>
+                      <div 
+                        style={{ 
+                          fontSize: "1.5rem", fontWeight: 800, 
+                          color: m.score >= 70 ? "var(--color-success)" : m.score >= 40 ? "var(--color-warning)" : "var(--color-danger)"
+                        }}
+                      >
+                        {m.score}%
+                      </div>
+                    </div>
+                    
+                    <div style={{ height: "10px", backgroundColor: "var(--color-bg)", borderRadius: "10px", overflow: "hidden" }}>
+                      <div 
+                        style={{ 
+                          width: `${m.score}%`, 
+                          height: "100%", 
+                          backgroundColor: m.score >= 70 ? "var(--color-success)" : m.score >= 40 ? "var(--color-warning)" : "var(--color-danger)",
+                          transition: 'width 0.8s ease-out'
+                        }}
+                      />
+                    </div>
                   </div>
-              ))}
-          </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

@@ -54,75 +54,23 @@ export default function Register() {
     }
   }
 
-  const containerStyle: React.CSSProperties = {
-    width: "100vw",
-    height: "100vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
-    overflow: "hidden",
-    fontFamily: "inherit",
-  };
-
-  const cardStyle: React.CSSProperties = {
-    width: "100%",
-    maxWidth: "440px",
-    background: "#ffffff",
-    padding: "40px",
-    borderRadius: "16px",
-    boxShadow: "0 20px 25px rgba(0, 0, 0, 0.15)",
-  };
-
-  const headerStyle: React.CSSProperties = {
-    marginBottom: "32px",
-    textAlign: "center",
-  };
-
-  const iconStyle: React.CSSProperties = {
-    fontSize: "3.5rem",
-    marginBottom: "12px",
-  };
-
-  const titleStyle: React.CSSProperties = {
-    margin: 0,
-    color: "#111827",
-    fontSize: "1.75rem",
-    fontWeight: 700,
-    marginBottom: "8px",
-  };
-
-  const subtitleStyle: React.CSSProperties = {
-    color: "#6b7280",
-    fontSize: "0.95rem",
-    margin: 0,
-    marginTop: "4px",
-  };
-
-  const formStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-  };
-
-  const linkStyle: React.CSSProperties = {
-    marginTop: "24px",
-    textAlign: "center",
-    color: "#6b7280",
-    fontSize: "0.95rem",
-  };
-
   return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        <div style={headerStyle}>
-          <div style={iconStyle}>🚀</div>
-          <h1 style={titleStyle}>Create Account</h1>
-          <p style={subtitleStyle}>
-            Join the Group Project Accountability Tracker
-          </p>
+    <div 
+      className="page-wrapper" 
+      style={{ 
+        display: "flex", alignItems: "center", justifyContent: "center",
+        background: "linear-gradient(135deg, #a855f7 0%, #6366f1 100%)",
+        maxWidth: "none", padding: "20px"
+      }}
+    >
+      <div className="glass fade-in" style={{ width: "100%", maxWidth: "460px", padding: "40px", borderRadius: "24px" }}>
+        <div style={{ textAlign: "center", marginBottom: "32px" }}>
+          <div style={{ fontSize: "3rem", marginBottom: "16px" }}>🚀</div>
+          <h1 style={{ fontSize: "2.25rem", fontWeight: 800, marginBottom: "8px", tracking: "-0.02em" }}>Create Account</h1>
+          <p style={{ color: "var(--color-text-secondary)", fontSize: "1rem" }}>Join the Group Project Accountability Tracker</p>
         </div>
 
-        <form onSubmit={handleRegister} style={formStyle}>
+        <form onSubmit={handleRegister}>
           <FormInput
             type="text"
             label="Full Name"
@@ -177,23 +125,19 @@ export default function Register() {
           <Button
             type="submit"
             variant="primary"
-            size="md"
+            size="lg"
             loading={loading}
-            style={{ marginTop: "8px" }}
+            style={{ width: "100%", marginTop: "12px" }}
           >
-            {loading ? "Creating Account..." : "Sign Up"}
+            Sign Up
           </Button>
         </form>
 
-        <div style={linkStyle}>
+        <div style={{ marginTop: "32px", textAlign: "center", fontSize: "0.95rem", color: "var(--color-text-secondary)" }}>
           Already have an account?{" "}
           <Link
             to="/login"
-            style={{
-              color: "#4f46e5",
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
+            style={{ color: "var(--color-primary)", fontWeight: 700, textDecoration: "none" }}
           >
             Login
           </Link>

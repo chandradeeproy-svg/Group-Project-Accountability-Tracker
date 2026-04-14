@@ -11,9 +11,7 @@ export default function Login() {
   const { addToast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-    {},
-  );
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
 
   const validateForm = () => {
@@ -45,73 +43,23 @@ export default function Login() {
     }
   }
 
-  const containerStyle: React.CSSProperties = {
-    width: "100vw",
-    height: "100vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
-    overflow: "hidden",
-    fontFamily: "inherit",
-  };
-
-  const cardStyle: React.CSSProperties = {
-    width: "100%",
-    maxWidth: "420px",
-    background: "#ffffff",
-    padding: "40px",
-    borderRadius: "16px",
-    boxShadow: "0 20px 25px rgba(0, 0, 0, 0.15)",
-  };
-
-  const headerStyle: React.CSSProperties = {
-    marginBottom: "32px",
-    textAlign: "center",
-  };
-
-  const iconStyle: React.CSSProperties = {
-    fontSize: "3.5rem",
-    marginBottom: "12px",
-  };
-
-  const titleStyle: React.CSSProperties = {
-    margin: 0,
-    color: "#111827",
-    fontSize: "1.75rem",
-    fontWeight: 700,
-    marginBottom: "8px",
-  };
-
-  const subtitleStyle: React.CSSProperties = {
-    color: "#6b7280",
-    fontSize: "0.95rem",
-    margin: 0,
-    marginTop: "4px",
-  };
-
-  const formStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-  };
-
-  const linkStyle: React.CSSProperties = {
-    marginTop: "24px",
-    textAlign: "center",
-    color: "#6b7280",
-    fontSize: "0.95rem",
-  };
-
   return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        <div style={headerStyle}>
-          <div style={iconStyle}>🎯</div>
-          <h1 style={titleStyle}>Welcome Back</h1>
-          <p style={subtitleStyle}>Group Project Accountability Tracker</p>
+    <div 
+      className="page-wrapper" 
+      style={{ 
+        display: "flex", alignItems: "center", justifyContent: "center",
+        background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
+        maxWidth: "none", padding: "20px"
+      }}
+    >
+      <div className="glass fade-in" style={{ width: "100%", maxWidth: "440px", padding: "48px", borderRadius: "24px" }}>
+        <div style={{ textAlign: "center", marginBottom: "32px" }}>
+          <div style={{ fontSize: "3rem", marginBottom: "16px" }}>🎯</div>
+          <h1 style={{ fontSize: "2.25rem", fontWeight: 800, marginBottom: "8px", tracking: "-0.02em" }}>Welcome Back</h1>
+          <p style={{ color: "var(--color-text-secondary)", fontSize: "1rem" }}>Group Project Accountability Tracker</p>
         </div>
 
-        <form onSubmit={handleLogin} style={formStyle}>
+        <form onSubmit={handleLogin}>
           <FormInput
             type="email"
             label="Email Address"
@@ -140,23 +88,19 @@ export default function Login() {
           <Button
             type="submit"
             variant="primary"
-            size="md"
+            size="lg"
             loading={loading}
-            style={{ marginTop: "8px" }}
+            style={{ width: "100%", marginTop: "12px" }}
           >
-            {loading ? "Logging in..." : "Login"}
+            Login
           </Button>
         </form>
 
-        <div style={linkStyle}>
+        <div style={{ marginTop: "32px", textAlign: "center", fontSize: "0.95rem", color: "var(--color-text-secondary)" }}>
           Don't have an account?{" "}
           <Link
             to="/register"
-            style={{
-              color: "#4f46e5",
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
+            style={{ color: "var(--color-primary)", fontWeight: 700, textDecoration: "none" }}
           >
             Sign Up
           </Link>

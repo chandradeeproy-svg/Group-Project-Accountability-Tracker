@@ -11,58 +11,33 @@ export const FormInput: React.FC<FormInputProps> = ({
   error,
   helperText,
   id,
+  className = "",
   ...props
 }) => {
-  const inputId = id || `input-${Math.random()}`;
-
-  const containerStyle: React.CSSProperties = {
-    marginBottom: "1rem",
-    display: "flex",
-    flexDirection: "column",
-  };
-
-  const labelStyle: React.CSSProperties = {
-    marginBottom: "0.5rem",
-    fontSize: "0.95rem",
-    fontWeight: 600,
-    color: "#111827",
-  };
-
-  const inputStyle: React.CSSProperties = {
-    padding: "0.75rem 1rem",
-    border: error ? "1px solid #ef4444" : "1px solid #e5e7eb",
-    borderRadius: "6px",
-    fontSize: "1rem",
-    backgroundColor: "#ffffff",
-    color: "#111827",
-    transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-    fontFamily: "inherit",
-    ...props.style,
-  };
-
-  const errorStyle: React.CSSProperties = {
-    marginTop: "0.4rem",
-    fontSize: "0.85rem",
-    color: "#ef4444",
-    fontWeight: 500,
-  };
-
-  const helperStyle: React.CSSProperties = {
-    marginTop: "0.4rem",
-    fontSize: "0.85rem",
-    color: "#6b7280",
-  };
+  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
 
   return (
-    <div style={containerStyle}>
+    <div style={{ marginBottom: "1.25rem", display: "flex", flexDirection: "column" }}>
       {label && (
-        <label htmlFor={inputId} style={labelStyle}>
+        <label htmlFor={inputId} className="form-label">
           {label}
         </label>
       )}
-      <input id={inputId} style={inputStyle} {...props} />
-      {error && <div style={errorStyle}>{error}</div>}
-      {helperText && !error && <div style={helperStyle}>{helperText}</div>}
+      <input
+        id={inputId}
+        className={`form-input ${error ? "error" : ""} ${className}`.trim()}
+        {...props}
+      />
+      {error && (
+        <div style={{ marginTop: "0.5rem", fontSize: "0.85rem", color: "var(--color-danger)", fontWeight: 500 }}>
+          {error}
+        </div>
+      )}
+      {helperText && !error && (
+        <div style={{ marginTop: "0.5rem", fontSize: "0.85rem", color: "var(--color-text-tertiary)" }}>
+          {helperText}
+        </div>
+      )}
     </div>
   );
 };

@@ -62,234 +62,74 @@ export default function Dashboard() {
   };
 
   if (loading)
-    return <div style={{ padding: "20px" }}>Loading Dashboard...</div>;
+    return <div className="page-wrapper"><div className="text-center">Loading Dashboard...</div></div>;
 
   const activeTasks = tasks.filter(
     (t) => t.status !== "APPROVED" && t.status !== "CANCELLED",
   );
 
-  const dashboardStyle: React.CSSProperties = {
-    padding: "20px",
-    maxWidth: "1400px",
-    margin: "0 auto",
-  };
-
-  const sectionStyle: React.CSSProperties = {
-    marginBottom: "30px",
-  };
-
-  const headerStyle: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
-    gap: "10px",
-  };
-
-  const gridStyle: React.CSSProperties = {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
-    gap: "25px",
-    marginBottom: "30px",
-  };
-
-  const emptyStateStyle: React.CSSProperties = {
-    padding: "40px 20px",
-    textAlign: "center",
-    border: "2px dashed #e5e7eb",
-    borderRadius: "8px",
-    color: "#6b7280",
-    backgroundColor: "#f9fafb",
-  };
-
-  const welcomeBoxStyle: React.CSSProperties = {
-    padding: "20px",
-    backgroundColor: "#f0f9ff",
-    borderLeft: "4px solid #4f46e5",
-    borderRadius: "6px",
-    marginBottom: "25px",
-  };
-
-  const taskListStyle: React.CSSProperties = {
-    maxHeight: "500px",
-    overflowY: "auto",
-  };
-
-  const projectCardStyle: React.CSSProperties = {
-    border: "1px solid #e5e7eb",
-    padding: "15px",
-    borderRadius: "8px",
-    backgroundColor: "#ffffff",
-    marginBottom: "10px",
-    transition: "box-shadow 0.2s ease",
-  };
-
   return (
-    <div style={dashboardStyle}>
-      <h1 style={{ marginBottom: "25px", fontSize: "2rem", color: "#111827" }}>
-        Dashboard
-      </h1>
+    <div className="page-wrapper fade-in">
+      <div style={{ marginBottom: "2rem" }}>
+        <h1 style={{ fontSize: "2.5rem", fontWeight: 800, tracking: "-0.02em" }}>Dashboard</h1>
+      </div>
 
-      <div style={welcomeBoxStyle}>
-        <h2
-          style={{ margin: "0 0 8px 0", fontSize: "1.2rem", color: "#1e40af" }}
-        >
+      <div className="glass" style={{ padding: "32px", borderRadius: "24px", marginBottom: "32px", border: "1px solid rgba(99, 102, 241, 0.2)" }}>
+        <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--color-primary)", marginBottom: "8px" }}>
           Welcome back, {user?.name}! 👋
         </h2>
-        <p style={{ margin: 0, color: "#475569" }}>
-          You have <strong>{activeTasks.length}</strong> active tasks requiring
-          your attention.
+        <p style={{ margin: 0, color: "var(--color-text-secondary)", fontSize: "1.1rem" }}>
+          You have <strong style={{ color: "var(--color-primary)" }}>{activeTasks.length}</strong> active tasks requiring your attention. Keep up the great work!
         </p>
       </div>
 
-      <div style={gridStyle}>
-        <section style={sectionStyle}>
-          <div style={headerStyle}>
-            <h2 style={{ margin: 0, fontSize: "1.25rem", color: "#111827" }}>
-              My Tasks
-            </h2>
-            <Link
-              to="/tasks"
-              style={{
-                fontSize: "0.9em",
-                color: "#4f46e5",
-                textDecoration: "none",
-                fontWeight: 500,
-              }}
-            >
-              View All →
+      <div className="grid grid-cols-2">
+        <section className="animate-fade">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+            <h2 style={{ fontSize: "1.25rem", fontWeight: 700 }}>My Tasks</h2>
+            <Link to="/tasks" className="btn btn-outline" style={{ fontSize: "0.85rem", padding: "6px 12px" }}>
+              View All
             </Link>
           </div>
 
           {tasks.length === 0 ? (
-            <div style={emptyStateStyle}>
-              <p style={{ margin: 0 }}>📋 No tasks assigned to you yet.</p>
+            <div className="card text-center" style={{ borderStyle: "dashed", padding: "48px" }}>
+              <p style={{ color: "var(--color-text-tertiary)" }}>📋 No tasks assigned to you yet.</p>
             </div>
           ) : (
-            <div style={taskListStyle}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               {tasks.slice(0, 5).map((task) => {
-                const isOverdue =
-                  task.deadline &&
-                  new Date(task.deadline) < new Date() &&
-                  task.status !== "APPROVED";
-
-                const statusColor = isOverdue ? "#ef4444" : "#6b7280";
-
+                const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== "APPROVED";
                 return (
-                  <div key={task.taskid} style={projectCardStyle}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "start",
-                        marginBottom: "10px",
-                        gap: "8px",
-                      }}
-                    >
-                      <strong
-                        style={{
-                          color: "#111827",
-                          fontSize: "0.95rem",
-                          flex: 1,
-                        }}
-                      >
-                        {task.title}
-                      </strong>
-                      <span
-                        style={{
-                          fontSize: "0.75em",
-                          color: "#666",
-                          padding: "3px 8px",
-                          backgroundColor: "#f0f0f0",
-                          borderRadius: "4px",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {task.projectname}
-                      </span>
+                  <div key={task.taskid} className="card" style={{ transition: "transform 0.2s ease" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "12px" }}>
+                      <strong style={{ fontSize: "1.05rem", fontWeight: 700 }}>{task.title}</strong>
+                      <span className="badge badge-secondary">{task.projectname}</span>
                     </div>
 
-                    <div
-                      style={{
-                        fontSize: "0.85em",
-                        color: "#6b7280",
-                        marginBottom: "8px",
-                      }}
-                    >
-                      Status:{" "}
-                      <span style={{ fontWeight: 600, color: statusColor }}>
+                    <div style={{ display: "flex", gap: "16px", marginBottom: "16px", fontSize: "0.9rem" }}>
+                      <span className={isOverdue ? "badge badge-danger" : "badge badge-warning"}>
                         {task.status}
                       </span>
+                      {task.deadline && (
+                        <span style={{ color: isOverdue ? "var(--color-danger)" : "var(--color-text-tertiary)" }}>
+                          📅 {new Date(task.deadline).toLocaleDateString()}
+                          {isOverdue && <strong> (OVERDUE)</strong>}
+                        </span>
+                      )}
                     </div>
 
-                    {task.deadline && (
-                      <div
-                        style={{
-                          fontSize: "0.85em",
-                          marginBottom: "10px",
-                          color: statusColor,
-                        }}
-                      >
-                        📅 {new Date(task.deadline).toLocaleDateString()}
-                        {isOverdue && (
-                          <span style={{ fontWeight: 700 }}> (OVERDUE)</span>
-                        )}
-                      </div>
-                    )}
-
-                    <div
-                      style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}
-                    >
+                    <div style={{ display: "flex", gap: "12px" }}>
                       {task.status === "CREATED" && (
-                        <Button
-                          size="sm"
-                          variant="primary"
-                          onClick={() =>
-                            askConfirm(
-                              "Start Task",
-                              "Are you sure you want to start this task?",
-                              () =>
-                                handleStatusChange(task.taskid, "IN_PROGRESS"),
-                              "primary",
-                            )
-                          }
-                        >
+                        <Button size="sm" variant="primary" onClick={() => askConfirm("Start Task", "Are you sure?", () => handleStatusChange(task.taskid, "IN_PROGRESS"))}>
                           Start
                         </Button>
                       )}
                       {task.status === "IN_PROGRESS" && (
-                        <Button
-                          size="sm"
-                          variant="success"
-                          onClick={() =>
-                            askConfirm(
-                              "Mark Task Done",
-                              "Are you sure you have completed this task?",
-                              () => handleStatusChange(task.taskid, "DONE"),
-                              "success",
-                            )
-                          }
-                        >
+                        <Button size="sm" variant="success" onClick={() => askConfirm("Mark Done", "Completed this task?", () => handleStatusChange(task.taskid, "DONE"))}>
                           Mark Done
                         </Button>
                       )}
-                      {task.projectownerid === user?.id &&
-                        task.status === "DONE" && (
-                          <Button
-                            size="sm"
-                            variant="success"
-                            onClick={() =>
-                              askConfirm(
-                                "Approve Task",
-                                "Are you sure you want to approve this task completion?",
-                                () => handleApprove(task.taskid),
-                                "success",
-                              )
-                            }
-                          >
-                            Approve Task
-                          </Button>
-                        )}
                     </div>
                   </div>
                 );
@@ -298,61 +138,34 @@ export default function Dashboard() {
           )}
         </section>
 
-        <section style={sectionStyle}>
-          <div style={headerStyle}>
-            <h2 style={{ margin: 0, fontSize: "1.25rem", color: "#111827" }}>
-              My Project Groups
-            </h2>
-            <Link
-              to="/groups"
-              style={{
-                fontSize: "0.9em",
-                color: "#4f46e5",
-                textDecoration: "none",
-                fontWeight: 500,
-              }}
-            >
-              Manage →
+        <section className="animate-fade" style={{ animationDelay: "0.1s" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+            <h2 style={{ fontSize: "1.25rem", fontWeight: 700 }}>My Projects</h2>
+            <Link to="/groups" className="btn btn-outline" style={{ fontSize: "0.85rem", padding: "6px 12px" }}>
+              Manage
             </Link>
           </div>
 
           {projects.length === 0 ? (
-            <div style={emptyStateStyle}>
-              <p style={{ margin: 0 }}>👥 You are not in any groups yet.</p>
+            <div className="card text-center" style={{ borderStyle: "dashed", padding: "48px" }}>
+              <p style={{ color: "var(--color-text-tertiary)" }}>👥 You are not in any groups yet.</p>
             </div>
           ) : (
-            projects.map((project) => (
-              <Link
-                key={project.projectid}
-                to={`/groups/${project.projectid}`}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <div
-                  style={{
-                    ...projectCardStyle,
-                    cursor: "pointer",
-                  }}
-                >
-                  <div style={{ marginBottom: "8px" }}>
-                    <strong style={{ color: "#4f46e5", fontSize: "0.95rem" }}>
-                      {project.name}
-                    </strong>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {projects.map((project) => (
+                <Link key={project.projectid} to={`/groups/${project.projectid}`} style={{ textDecoration: "none" }}>
+                  <div className="card btn-secondary" style={{ padding: "20px", border: "1px solid var(--color-border)", textAlign: "left" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                      <strong style={{ fontSize: "1.1rem", color: "var(--color-primary)" }}>{project.name}</strong>
+                      <span className="badge badge-secondary">👤 {project.role}</span>
+                    </div>
+                    <div style={{ fontSize: "0.85rem", color: "var(--color-text-tertiary)" }}>
+                      Created: {new Date(project.createdat).toLocaleDateString()}
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: "0.85em",
-                      color: "#6b7280",
-                      marginBottom: "5px",
-                    }}
-                  >
-                    👤 Role: {project.role}
-                  </div>
-                  <div style={{ fontSize: "0.75em", color: "#9ca3af" }}>
-                    Created: {new Date(project.createdat).toLocaleDateString()}
-                  </div>
-                </div>
-              </Link>
-            ))
+                </Link>
+              ))}
+            </div>
           )}
         </section>
       </div>

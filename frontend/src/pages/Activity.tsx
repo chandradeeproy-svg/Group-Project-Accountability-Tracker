@@ -16,35 +16,38 @@ export default function Activity() {
       .finally(() => setLoading(false));
   }, [token]);
 
-  if (loading) return <p style={{ padding: "20px" }}>Loading activity...</p>;
+  if (loading) return <div className="page-wrapper"><div className="text-center">Loading activity...</div></div>;
 
   return (
-    <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
-      <h1>Recent Activity</h1>
+    <div className="page-wrapper fade-in" style={{ maxWidth: "900px" }}>
+      <div style={{ marginBottom: "32px", borderBottom: "1px solid var(--color-border)", paddingBottom: "24px" }}>
+        <h1 style={{ fontSize: "2.5rem", fontWeight: 800, marginBottom: "8px" }}>Recent Activity</h1>
+        <p style={{ color: "var(--color-text-secondary)", fontSize: "1.1rem" }}>
+          Comprehensive timeline of actions across all your projects.
+        </p>
+      </div>
       
       {activities.length === 0 ? (
-        <div style={{ padding: "40px", textAlign: "center", border: "1px dashed #ccc", borderRadius: "10px", color: "#666" }}>
-            <p>This feature will be available soon where activities of all group members will be visible.</p>
+        <div className="card text-center" style={{ borderStyle: "dashed", padding: "64px" }}>
+          <div style={{ fontSize: "4rem", marginBottom: "20px" }}>🔭</div>
+          <h2 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "8px" }}>No activity yet</h2>
+          <p style={{ color: "var(--color-text-tertiary)" }}>Activity for all group members will appear here as tasks are managed.</p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {activities.map((event: any) => (
-            <div key={event.event_id} style={{ 
-                padding: "15px", 
-                border: "1px solid #eee", 
-                borderRadius: "8px", 
-                backgroundColor: "white",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.02)"
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
-                  <span style={{ fontSize: "0.8em", color: "#007bff", fontWeight: "bold" }}>{event.projectname}</span>
-                  <span style={{ fontSize: "0.75em", color: "#999" }}>{new Date(event.timestamp).toLocaleString()}</span>
+            <div key={event.event_id} className="card accent-border" style={{ padding: "20px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                  <span className="badge badge-primary" style={{ fontSize: "0.75rem" }}>{event.projectname}</span>
+                  <span style={{ fontSize: "0.85rem", color: "var(--color-text-tertiary)" }}>{new Date(event.timestamp).toLocaleString()}</span>
               </div>
-              <div style={{ fontSize: "0.95em" }}>
-                <strong>{event.username || "System"}</strong> 
-                {event.type === 'TASK_CREATED' && ` created task: ${event.metadata?.title}`}
-                {event.type === 'TASK_STATUS_CHANGED' && ` changed status to ${event.metadata?.to}`}
-                {event.type === 'TASK_APPROVED' && ` approved a task.`}
+              <div style={{ fontSize: "1rem", color: "var(--color-text-primary)" }}>
+                <strong style={{ color: "var(--color-primary)" }}>{event.username || "System"}</strong> 
+                <span style={{ marginLeft: "8px" }}>
+                  {event.type === 'TASK_CREATED' && `📝 created task: ${event.metadata?.title || "New Task"}`}
+                  {event.type === 'TASK_STATUS_CHANGED' && `✏️ changed status to ${event.metadata?.to}`}
+                  {event.type === 'TASK_APPROVED' && `✅ approved a task completion.`}
+                </span>
               </div>
             </div>
           ))}

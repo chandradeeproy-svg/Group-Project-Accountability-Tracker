@@ -1,10 +1,8 @@
 import moduleAlias from "module-alias";
 import path from "path";
 
-// Register aliases for production (dist)
-if (process.env.NODE_ENV === "production" || !__filename.endsWith(".ts")) {
-  moduleAlias.addAlias("@gpa/shared", path.join(__dirname, "../../../shared"));
-}
+// Register aliases
+moduleAlias.addAlias("@gpa/shared", path.join(__dirname, "../../../shared"));
 
 import "dotenv/config";
 import express from "express";

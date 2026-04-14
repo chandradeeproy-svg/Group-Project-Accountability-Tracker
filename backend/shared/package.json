@@ -1,6 +1,7 @@
 {
   "name": "@gpa/shared",
   "version": "1.0.0",
+  "main": "index.ts",
   "private": true,
   "dependencies": {
     "ioredis": "^5.10.1",

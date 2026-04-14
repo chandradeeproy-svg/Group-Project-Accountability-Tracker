@@ -17,6 +17,8 @@ import {
 import ConfirmModal from "../components/ConfirmModal";
 import { useConfirmModal } from "../hooks/useConfirmModal";
 import { useToast } from "../context/ToastContext";
+import { Button } from "../components/Button";
+import { FormInput } from "../components/FormInput";
 
 type Tab = "TASKS" | "MEMBERS" | "ACTIVITY" | "SCORES";
 const TABS: Tab[] = ["TASKS", "MEMBERS", "ACTIVITY", "SCORES"];
@@ -199,143 +201,96 @@ export default function GroupDetail() {
     }
   };
 
-  if (loading) return <p style={{ padding: "20px" }}>Loading Group Data...</p>;
+  if (loading) return <div className="page-wrapper"><div className="text-center">Loading Group Data...</div></div>;
 
-  // Check if current user is project owner (handles both ownerid and ownerId casing)
   const projectOwnerId = project?.ownerid || project?.ownerId;
   const isProjectOwner = projectOwnerId === user?.id;
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
-      {/* Tabs */}
-      <div style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            style={{
-              fontWeight: activeTab === tab ? "bold" : "normal",
-              padding: "10px 20px",
-              cursor: "pointer",
-              backgroundColor: activeTab === tab ? "#007bff" : "#f8f9fa",
-              color: activeTab === tab ? "white" : "black",
-              border: "1px solid #dee2e6",
-              borderRadius: "5px",
-            }}
-          >
-            {tab}
-          </button>
-        ))}
+    <div className="page-wrapper fade-in">
+      <div style={{ marginBottom: "2rem" }}>
+        <h1 style={{ fontSize: "2.5rem", fontWeight: 800, marginBottom: "1rem" }}>{project?.name || "Group Details"}</h1>
+        
+        {/* Tabs */}
+        <div 
+          className="glass"
+          style={{ 
+            display: "inline-flex", 
+            padding: "6px", 
+            gap: "4px", 
+            borderRadius: "14px",
+            marginBottom: "20px"
+          }}
+        >
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className="btn"
+              style={{
+                backgroundColor: activeTab === tab ? "var(--color-primary)" : "transparent",
+                color: activeTab === tab ? "white" : "var(--color-text-secondary)",
+                padding: "8px 20px",
+                borderRadius: "10px",
+                fontSize: "0.9rem",
+              }}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
       </div>
-
-      <h1>{project?.name || "Group Details"}</h1>
 
       {/* TASKS TAB */}
       {activeTab === "TASKS" && (
-        <>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <h2>Tasks</h2>
+        <div className="animate-fade">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+            <h2 style={{ fontSize: "1.5rem", fontWeight: 700 }}>Tasks</h2>
             {isProjectOwner && (
-              <button
+              <Button
+                variant={showTaskForm ? "secondary" : "primary"}
                 onClick={() => setShowTaskForm(!showTaskForm)}
-                style={{
-                  padding: "10px 20px",
-                  cursor: "pointer",
-                  borderRadius: "5px",
-                }}
               >
                 {showTaskForm ? "Cancel" : "+ Create Task"}
-              </button>
+              </Button>
             )}
           </div>
 
           {showTaskForm && (
-            <div
-              style={{
-                margin: "20px 0",
-                padding: "15px",
-                border: "1px solid #ccc",
-                borderRadius: "5px",
-                backgroundColor: "#fdfdfd",
-              }}
-            >
-              <h3>Create New Task</h3>
-              <div style={{ marginBottom: "10px" }}>
-                <label style={{ display: "block", marginBottom: "5px" }}>
-                  Task Title:
-                </label>
-                <input
-                  type="text"
+            <div className="card glass-light" style={{ marginBottom: "32px", border: "1px solid var(--color-primary-light)" }}>
+              <h3 style={{ marginBottom: "20px" }}>Create New Task</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
+                <FormInput
+                  label="Task Title"
                   placeholder="What needs to be done?"
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
-                  style={{ padding: "8px", width: "100%", maxWidth: "400px" }}
                 />
-              </div>
-              <div style={{ marginBottom: "10px" }}>
-                <label style={{ display: "block", marginBottom: "5px" }}>
-                  Deadline:
-                </label>
-                <input
+                <FormInput
+                  label="Deadline"
                   type="datetime-local"
                   value={newTaskDeadline}
                   onChange={(e) => setNewTaskDeadline(e.target.value)}
-                  style={{ padding: "8px", width: "100%", maxWidth: "400px" }}
                 />
               </div>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", marginBottom: "5px" }}>
-                  Assign to: <span style={{ color: "#ef4444" }}>*</span>
-                </label>
+              <div style={{ marginBottom: "24px" }}>
+                <label className="form-label">Assign to:</label>
                 <select
                   value={newTaskAssignee}
                   onChange={(e) => setNewTaskAssignee(e.target.value)}
-                  style={{
-                    padding: "8px",
-                    width: "100%",
-                    maxWidth: "400px",
-                    borderColor: newTaskAssignee ? "#ddd" : "#ef4444",
-                    borderWidth: "1px",
-                    borderStyle: "solid",
-                    borderRadius: "4px",
-                  }}
+                  className="form-input"
+                  style={{ borderColor: newTaskAssignee ? "var(--color-border)" : "var(--color-danger)" }}
                 >
-                  <option value="">-- Select someone --</option>
-                  {isProjectOwner && <option value={user?.id}>Myself</option>}
-                  {members
-                    .filter((m) => m.userid !== user?.id)
-                    .map((m) => (
-                      <option key={m.userid} value={m.userid}>
-                        {m.name}
-                      </option>
-                    ))}
                 </select>
               </div>
-              <button
+              <Button
                 onClick={handleCreateTask}
                 disabled={creatingTask || !newTaskTitle.trim()}
-                style={{
-                  padding: "10px 20px",
-                  cursor:
-                    creatingTask || !newTaskTitle.trim()
-                      ? "not-allowed"
-                      : "pointer",
-                  backgroundColor:
-                    creatingTask || !newTaskTitle.trim() ? "#ccc" : "#28a745",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  opacity: creatingTask || !newTaskTitle.trim() ? 0.6 : 1,
-                }}
+                loading={creatingTask}
+                variant="success"
               >
-                {creatingTask ? "Creating..." : "Create Task"}
-              </button>
+                Create Task
+              </Button>
             </div>
           )}
 
@@ -357,207 +312,130 @@ export default function GroupDetail() {
             );
 
             return (
-              <div
-                key={task.taskid || task.taskId}
-                style={{
-                  border: "1px solid #ccc",
-                  padding: "15px",
-                  margin: "10px 0",
-                  borderRadius: "5px",
-                  backgroundColor: "white",
-                }}
-              >
-                <div
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  <strong>{task.title}</strong>
-                  <span
-                    style={{
-                      padding: "2px 8px",
-                      borderRadius: "10px",
-                      fontSize: "0.8em",
-                      backgroundColor:
-                        task.status === "APPROVED" ? "#d4edda" : "#fff3cd",
-                      color: task.status === "APPROVED" ? "#155724" : "#856404",
-                    }}
-                  >
+              <div key={task.taskid || task.taskId} className="card animate-fade" style={{ marginBottom: "16px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                  <strong style={{ fontSize: "1.1rem" }}>{task.title}</strong>
+                  <span className={`badge ${task.status === "APPROVED" ? "badge-success" : "badge-warning"}`}>
                     {task.status}
                   </span>
                 </div>
-                <div style={{ color: "#666", fontSize: "0.9em" }}>
-                  Assigned to: {assignee?.name || "Unknown"}
+                <div style={{ display: "flex", gap: "24px", color: "var(--color-text-secondary)", fontSize: "0.9rem" }}>
+                  <div>👤 {assignee?.name || "Unknown"}</div>
+                  {task.deadline && (
+                    <div style={{ color: isOverdue ? "var(--color-danger)" : "inherit", fontWeight: isOverdue ? 700 : 400 }}>
+                      📅 {new Date(task.deadline).toLocaleString()}
+                      {isOverdue && " (OVERDUE)"}
+                    </div>
+                  )}
                 </div>
 
-                {task.deadline && (
-                  <div
-                    style={{
-                      color: isOverdue ? "red" : "#666",
-                      fontSize: "0.9em",
-                    }}
-                  >
-                    Deadline: {new Date(task.deadline).toLocaleString()}
-                    {isOverdue && <strong> (OVERDUE)</strong>}
-                  </div>
-                )}
-
-                {/* Action buttons */}
-                <div style={{ marginTop: "10px" }}>
+                <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
                   {taskOwnerId === user?.id && task.status === "CREATED" && (
-                    <button
+                    <Button
+                      variant="primary"
+                      size="sm"
                       onClick={() =>
                         askConfirm(
                           "Start Task",
                           "Are you sure you want to start this task?",
-                          () =>
-                            handleStatusChange(
-                              task.taskid || task.taskId,
-                              "IN_PROGRESS",
-                            ),
-                          "primary",
+                          () => handleStatusChange(task.taskid || task.taskId, "IN_PROGRESS"),
+                          "primary"
                         )
                       }
-                      style={{
-                        marginRight: "5px",
-                        padding: "5px 10px",
-                        cursor: "pointer",
-                      }}
                     >
                       Start Task
-                    </button>
+                    </Button>
                   )}
 
-                  {taskOwnerId === user?.id &&
-                    task.status === "IN_PROGRESS" && (
-                      <button
-                        onClick={() =>
-                          askConfirm(
-                            "Mark Task Done",
-                            "Are you sure you have completed this task?",
-                            () =>
-                              handleStatusChange(
-                                task.taskid || task.taskId,
-                                "DONE",
-                              ),
-                            "success",
-                          )
-                        }
-                        style={{
-                          marginRight: "5px",
-                          padding: "5px 10px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Mark as Done
-                      </button>
-                    )}
+                  {taskOwnerId === user?.id && task.status === "IN_PROGRESS" && (
+                    <Button
+                      variant="success"
+                      size="sm"
+                      onClick={() =>
+                        askConfirm(
+                          "Mark Task Done",
+                          "Are you sure you have completed this task?",
+                          () => handleStatusChange(task.taskid || task.taskId, "DONE"),
+                          "success"
+                        )
+                      }
+                    >
+                      Mark as Done
+                    </Button>
+                  )}
 
                   {isProjectOwner && task.status === "DONE" && (
-                    <button
+                    <Button
+                      variant="success"
+                      size="sm"
                       onClick={() =>
                         askConfirm(
                           "Approve Task",
                           "Are you sure you want to approve this task completion?",
                           () => handleApprove(task.taskid || task.taskId),
-                          "success",
+                          "success"
                         )
                       }
-                      style={{
-                        padding: "5px 15px",
-                        cursor: "pointer",
-                        backgroundColor: "#28a745",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                      }}
                     >
                       Approve Task
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
             );
           })}
-        </>
+        </div>
       )}
 
       {/* MEMBERS TAB */}
       {activeTab === "MEMBERS" && (
-        <div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <h2>Members</h2>
+        <div className="animate-fade">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+            <h2 style={{ fontSize: "1.5rem", fontWeight: 700 }}>Members</h2>
             {isProjectOwner && (
-              <button
+              <Button
+                variant={showMemberForm ? "secondary" : "primary"}
                 onClick={() => setShowMemberForm(!showMemberForm)}
-                style={{
-                  padding: "10px 20px",
-                  cursor: "pointer",
-                  borderRadius: "5px",
-                }}
               >
                 {showMemberForm ? "Cancel" : "+ Add Member"}
-              </button>
+              </Button>
             )}
           </div>
 
           {showMemberForm && (
-            <div
-              style={{
-                margin: "20px 0",
-                padding: "15px",
-                border: "1px solid #ccc",
-                borderRadius: "5px",
-                backgroundColor: "#fdfdfd",
-              }}
-            >
-              <h3>Add Member to Group</h3>
-              <div style={{ marginBottom: "10px" }}>
-                <input
-                  type="text"
-                  placeholder="Search by name or email"
+            <div className="card glass" style={{ marginBottom: "32px", border: "1px solid var(--color-primary-light)" }}>
+              <h3 style={{ marginBottom: "20px" }}>Add Member to Group</h3>
+              <div style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
+                <FormInput
+                  label="Search Users"
+                  placeholder="name or email"
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
-                  style={{
-                    padding: "8px",
-                    width: "300px",
-                    marginRight: "10px",
-                  }}
+                  style={{ flex: 1, marginBottom: 0 }}
                 />
-                <button
-                  onClick={handleSearchUsers}
-                  style={{ padding: "8px 20px", cursor: "pointer" }}
-                >
-                  Search
-                </button>
+                <Button onClick={handleSearchUsers}>Search</Button>
               </div>
 
               {searchResults.length > 0 && (
-                <div>
-                  <h4>Search Results:</h4>
+                <div style={{ marginTop: "24px" }}>
+                  <h4 style={{ fontSize: "1rem", color: "var(--color-text-secondary)", marginBottom: "12px" }}>Search Results:</h4>
                   {searchResults.map((result) => (
                     <div
                       key={result.id}
+                      className="card"
                       style={{
-                        padding: "8px",
-                        borderBottom: "1px solid #eee",
+                        padding: "12px 20px",
+                        marginBottom: "10px",
                         display: "flex",
                         justifyContent: "space-between",
+                        alignItems: "center",
                       }}
                     >
-                      <span>
-                        {result.name} ({result.email})
-                      </span>
-                      <button
-                        onClick={() => handleAddMember(result.id)}
-                        style={{ padding: "2px 10px", cursor: "pointer" }}
-                      >
-                        Add
-                      </button>
+                      <div>
+                        <div style={{ fontWeight: 700 }}>{result.name}</div>
+                        <div style={{ fontSize: "0.85rem", color: "var(--color-text-tertiary)" }}>{result.email}</div>
+                      </div>
+                      <Button size="sm" onClick={() => handleAddMember(result.id)}>Add</Button>
                     </div>
                   ))}
                 </div>
@@ -566,43 +444,19 @@ export default function GroupDetail() {
           )}
 
           <div style={{ marginTop: "20px" }}>
-            <h3>Current Members</h3>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "15px",
-              }}
-            >
+            <h3 style={{ marginBottom: "20px" }}>Current Members</h3>
+            <div className="grid grid-cols-2">
               {members.map((member) => (
-                <div
-                  key={member.userid || member.userId}
-                  style={{
-                    padding: "15px",
-                    border: "1px solid #ddd",
-                    borderRadius: "5px",
-                    backgroundColor: "white",
-                  }}
-                >
-                  <div>
-                    <strong>{member.name}</strong>{" "}
-                    {(member.userid || member.userId) === user?.id
-                      ? "(You)"
-                      : ""}
-                  </div>
-                  <div style={{ fontSize: "0.85em", color: "#666" }}>
-                    {member.email}
-                  </div>
-                  <div style={{ marginTop: "5px" }}>
-                    <span
-                      style={{
-                        fontSize: "0.75em",
-                        padding: "2px 6px",
-                        backgroundColor:
-                          member.role === "OWNER" ? "#e2e3e5" : "#f8f9fa",
-                        borderRadius: "4px",
-                      }}
-                    >
+                <div key={member.userid || member.userId} className="card">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+                    <div>
+                      <div style={{ fontSize: "1.1rem", fontWeight: 700 }}>
+                        {member.name}
+                        {(member.userid || member.userId) === user?.id && <span style={{ color: "var(--color-primary)", marginLeft: "8px", fontWeight: 500 }}>(You)</span>}
+                      </div>
+                      <div style={{ fontSize: "0.9rem", color: "var(--color-text-tertiary)", marginTop: "4px" }}>{member.email}</div>
+                    </div>
+                    <span className={`badge ${member.role === "OWNER" ? "badge-primary" : "badge-secondary"}`}>
                       {member.role}
                     </span>
                   </div>
@@ -615,17 +469,18 @@ export default function GroupDetail() {
 
       {/* ACTIVITY TAB */}
       {activeTab === "ACTIVITY" && (
-        <div>
-          <h2>Group Activity</h2>
+        <div className="animate-fade">
+          <h2 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "24px" }}>Group Activity</h2>
           {activity.length === 0 ? (
-            <p style={{ color: "#666", fontStyle: "italic" }}>
-              No activity recorded yet for this project.
-            </p>
+            <div className="card text-center" style={{ borderStyle: "dashed", padding: "48px" }}>
+              <p style={{ color: "var(--color-text-tertiary)" }}>No activity recorded yet for this project.</p>
+            </div>
           ) : (
             <div
               style={{
-                borderLeft: "2px solid #007bff",
-                paddingLeft: "20px",
+                borderLeft: "3px solid var(--color-primary-light)",
+                paddingLeft: "32px",
+                marginLeft: "8px",
                 marginTop: "20px",
               }}
             >
@@ -640,18 +495,19 @@ export default function GroupDetail() {
                 return (
                   <div
                     key={event.event_id}
-                    style={{ marginBottom: "25px", position: "relative" }}
+                    style={{ marginBottom: "32px", position: "relative" }}
                   >
                     <div
                       style={{
                         position: "absolute",
-                        left: "-26px",
-                        top: "5px",
+                        left: "-39px",
+                        top: "4px",
                         width: "12px",
                         height: "12px",
                         borderRadius: "50%",
-                        backgroundColor: "#007bff",
-                        border: "2px solid white",
+                        backgroundColor: "var(--color-primary)",
+                        border: "3px solid white",
+                        boxShadow: "0 0 0 4px var(--color-primary-light)",
                       }}
                     ></div>
                     <div
@@ -721,11 +577,9 @@ export default function GroupDetail() {
 
       {/* SCORES TAB */}
       {activeTab === "SCORES" && (
-        <div>
-          <h2>Accountability Scores</h2>
-          <div
-            style={{ display: "grid", gridTemplateColumns: "1fr", gap: "20px" }}
-          >
+        <div className="animate-fade">
+          <h2 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "24px" }}>Accountability Scores</h2>
+          <div className="grid grid-cols-2">
             {members.map((member) => {
               const memberTasks = tasks.filter(
                 (t) => t.ownerid === member.userid,
@@ -741,55 +595,32 @@ export default function GroupDetail() {
                   : 0;
 
               return (
-                <div
-                  key={member.userid}
-                  style={{
-                    padding: "20px",
-                    border: "1px solid #ddd",
-                    borderRadius: "8px",
-                    backgroundColor: "white",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
+                <div key={member.userid} className="card">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
-                      <h3 style={{ margin: "0 0 5px 0" }}>{member.name}</h3>
-                      <div style={{ color: "#666", fontSize: "0.9em" }}>
-                        {approvedTasks.length} / {memberTasks.length} tasks
-                        approved
+                      <h3 style={{ margin: "0 0 4px 0", fontSize: "1.2rem" }}>{member.name}</h3>
+                      <div className="badge badge-secondary">
+                        {approvedTasks.length} / {memberTasks.length} tasks approved
                       </div>
                     </div>
                     <div style={{ textAlign: "right" }}>
                       <div
                         style={{
-                          fontSize: "2em",
-                          fontWeight: "bold",
-                          color:
-                            score >= 70
-                              ? "#28a745"
-                              : score >= 40
-                                ? "#ffc107"
-                                : "#dc3545",
+                          fontSize: "2.25rem",
+                          fontWeight: 800,
+                          color: score >= 70 ? "var(--color-success)" : score >= 40 ? "var(--color-warning)" : "var(--color-danger)",
                         }}
                       >
                         {score}%
-                      </div>
-                      <div style={{ fontSize: "0.8em", color: "#999" }}>
-                        Score
                       </div>
                     </div>
                   </div>
                   <div
                     style={{
-                      height: "8px",
-                      backgroundColor: "#f0f0f0",
-                      borderRadius: "4px",
-                      marginTop: "15px",
+                      height: "10px",
+                      backgroundColor: "var(--color-bg)",
+                      borderRadius: "10px",
+                      marginTop: "20px",
                       overflow: "hidden",
                     }}
                   >
@@ -797,15 +628,10 @@ export default function GroupDetail() {
                       style={{
                         height: "100%",
                         width: `${score}%`,
-                        backgroundColor:
-                          score >= 70
-                            ? "#28a745"
-                            : score >= 40
-                              ? "#ffc107"
-                              : "#dc3545",
-                        transition: "width 0.5s ease-in-out",
+                        backgroundColor: score >= 70 ? "var(--color-success)" : score >= 40 ? "var(--color-warning)" : "var(--color-danger)",
+                        transition: "width 1s ease-out",
                       }}
-                    ></div>
+                    />
                   </div>
                 </div>
               );
