@@ -1,47 +1,17 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = require("express");
-const controller = __importStar(require("../controllers/task.controller"));
-const auth_middleware_1 = require("../middlewares/auth.middleware");
-const router = (0, express_1.Router)();
-router.post("/tasks", auth_middleware_1.authenticate, controller.createTaskController);
-router.patch("/tasks/:id/status", auth_middleware_1.authenticate, controller.updateTaskStatusController);
-router.get("/projects/:projectId/tasks", auth_middleware_1.authenticate, controller.getTask);
-router.get("/projects/:projectId/activity", auth_middleware_1.authenticate, controller.getProjectActivityController);
-router.get("/activity", auth_middleware_1.authenticate, controller.getAllActivityController);
-router.get("/tasks/mine", auth_middleware_1.authenticate, controller.getMyTasks);
-router.patch("/tasks/:id/approve", auth_middleware_1.authenticate, controller.approveTaskController);
-exports.default = router;
+
+const { Router } = require("express");
+const controller = require("../controllers/task.controller");
+const { authenticate, asyncHandler } = require("@gpa/shared");
+
+const router = Router();
+
+router.post("/tasks", authenticate, asyncHandler(controller.createTaskController));
+router.patch("/tasks/:id/status", authenticate, asyncHandler(controller.updateTaskStatusController));
+router.get("/projects/:projectId/tasks", authenticate, asyncHandler(controller.getTask));
+router.get("/projects/:projectId/activity", authenticate, asyncHandler(controller.getProjectActivityController));
+router.get("/activity", authenticate, asyncHandler(controller.getAllActivityController));
+router.get("/tasks/mine", authenticate, asyncHandler(controller.getMyTasks));
+router.patch("/tasks/:id/approve", authenticate, asyncHandler(controller.approveTaskController));
+
+module.exports = { default: router };

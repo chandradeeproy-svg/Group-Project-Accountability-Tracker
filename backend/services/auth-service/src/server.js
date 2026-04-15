@@ -1,23 +1,26 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-require("dotenv/config"); // MUST be first — loads .env before any pool is created
-const module_alias_1 = __importDefault(require("module-alias"));
-const path_1 = __importDefault(require("path"));
-// Register aliases
-module_alias_1.default.addAlias("@gpa/shared", path_1.default.join(__dirname, "../../../shared"));
-const app_1 = require("./app");
-const env_1 = require("./config/env");
-const shared_1 = require("@gpa/shared");
-app_1.app.listen(env_1.env.PORT, async () => {
-    console.log(`Auth service running on port ${env_1.env.PORT}`);
-    try {
-        await shared_1.pool.query("SELECT NOW()");
-        console.log("DB Connected");
-    }
-    catch (e) {
-        console.error("DB Connection Failed", e);
-    }
+
+require("dotenv/config");
+
+const moduleAlias = require("module-alias");
+const path = require("path");
+
+moduleAlias.addAlias("@gpa/shared", path.join(__dirname, "../../../shared"));
+
+const { app } = require("./app");
+const { pool, loadServiceConfig, createLogger } = require("@gpa/shared");
+
+const config = loadServiceConfig("auth-service", { defaultPort: 4001 });
+const logger = createLogger(config.serviceName);
+
+app.locals.logger = logger;
+
+app.listen(config.PORT, async () => {
+  logger.info("Service started", { port: config.PORT });
+  try {
+    await pool.query("SELECT NOW()");
+    logger.info("Database connected");
+  } catch (err) {
+    logger.error("Database connection failed", { err });
+  }
 });

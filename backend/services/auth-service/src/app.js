@@ -1,15 +1,21 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.app = void 0;
-const express_1 = __importDefault(require("express"));
-const cors_1 = __importDefault(require("cors"));
-const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
-const user_routes_1 = __importDefault(require("./routes/user.routes"));
-exports.app = (0, express_1.default)();
-exports.app.use((0, cors_1.default)());
-exports.app.use(express_1.default.json());
-exports.app.use("/auth", auth_routes_1.default);
-exports.app.use(user_routes_1.default);
+
+const express = require("express");
+const authRoutes = require("./routes/auth.routes").default;
+const userRoutes = require("./routes/user.routes").default;
+const { requestId, errorHandler } = require("@gpa/shared");
+
+const app = express();
+
+app.use(requestId);
+app.use(express.json());
+app.use((req, _res, next) => {
+  req.logger = req.app.locals.logger;
+  next();
+});
+
+app.use("/auth", authRoutes);
+app.use(userRoutes);
+app.use(errorHandler);
+
+module.exports = { app };
