@@ -8,10 +8,12 @@
     "dev": "nodemon src/server.js"
   },
   "dependencies": {
+    "@gpa/shared": "*",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "http-proxy": "^1.18.1",
+    "module-alias": "^2.2.3",
     "uuid": "^13.0.0"
   },
   "devDependencies": {

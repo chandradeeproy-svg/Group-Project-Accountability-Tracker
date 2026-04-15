@@ -2,11 +2,26 @@
 
 require("dotenv/config");
 
+const moduleAlias = require("module-alias");
+const path = require("path");
+
+moduleAlias.addAlias("@gpa/shared", path.join(__dirname, "../../../shared"));
+
 const { app } = require("./app");
+const { setupGracefulShutdown, createLogger } = require("@gpa/shared");
 
 const PORT = process.env.GATEWAY_PORT || 4000;
+const logger = createLogger("gateway");
 
-app.listen(PORT, () => {
-  console.log(`API Gateway running on port ${PORT}`);
-  console.log(`Gateway health endpoint: http://localhost:${PORT}/health`);
+const server = app.listen(PORT, () => {
+  logger.info("Service started", { port: PORT });
+  logger.info("Gateway health endpoint available", {
+    healthUrl: `http://localhost:${PORT}/health`,
+  });
+});
+
+setupGracefulShutdown({
+  server,
+  logger,
+  serviceName: "gateway",
 });

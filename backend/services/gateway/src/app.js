@@ -5,6 +5,7 @@ const cors = require("cors");
 const httpProxy = require("http-proxy");
 const { requestId } = require("./middleware/requestId");
 const { requestLogger } = require("./middleware/requestLogger");
+const { createRateLimiter } = require("./middleware/rateLimit");
 const { resolveTarget } = require("./proxy/router");
 const { services } = require("./config/services");
 
@@ -22,6 +23,44 @@ app.use(cors({
 
 app.use(requestId);
 app.use(requestLogger);
+app.use(createRateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: Number(process.env.RATE_LIMIT_MAX || 120),
+}));
+
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  next();
+});
+
+app.get("/health/live", (_req, res) => {
+  res.json({
+    status: "ok",
+    service: "gateway",
+    check: "live",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.get("/health/ready", async (_req, res) => {
+  const checks = await Promise.allSettled([
+    fetch(`${services.AUTH.url}/health/ready`),
+    fetch(`${services.PROJECT.url}/health/ready`),
+    fetch(`${services.TASK.url}/health/ready`),
+  ]);
+
+  const ready = checks.every(
+    (check) => check.status === "fulfilled" && check.value.ok,
+  );
+
+  res.status(ready ? 200 : 503).json({
+    status: ready ? "ok" : "degraded",
+    service: "gateway",
+    check: "ready",
+    timestamp: new Date().toISOString(),
+  });
+});
 
 app.get("/health", (req, res) => {
   res.json({

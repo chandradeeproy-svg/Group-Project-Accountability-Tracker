@@ -18,6 +18,9 @@ function loadServiceConfig(serviceName, options = {}) {
     JWT_EXPIRES_IN: z.string().default("1d"),
     CORS_ORIGIN: z.string().default("http://localhost:5173"),
     RABBIT_URL: z.string().optional(),
+    PG_POOL_MAX: z.coerce.number().int().positive().default(10),
+    PG_IDLE_TIMEOUT_MS: z.coerce.number().int().positive().default(30000),
+    PG_CONNECTION_TIMEOUT_MS: z.coerce.number().int().positive().default(10000),
   });
 
   const parsed = schema.safeParse(process.env);

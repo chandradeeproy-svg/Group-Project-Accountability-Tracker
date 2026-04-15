@@ -9,5 +9,7 @@ module.exports = {
   ...require("./middleware/auth"),
   ...require("./middleware/requestId"),
   ...require("./middleware/errorHandler"),
+  ...require("./health"),
+  ...require("./lifecycle/gracefulShutdown"),
   ...require("./errors"),
 };

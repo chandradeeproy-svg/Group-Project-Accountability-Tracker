@@ -8,14 +8,20 @@ const path = require("path");
 moduleAlias.addAlias("@gpa/shared", path.join(__dirname, "../../../shared"));
 
 const { app } = require("./app");
-const { pool, loadServiceConfig, createLogger } = require("@gpa/shared");
+const {
+  pool,
+  loadServiceConfig,
+  createLogger,
+  setupGracefulShutdown,
+} = require("@gpa/shared");
 
 const config = loadServiceConfig("task-service", { defaultPort: 4003 });
 const logger = createLogger(config.serviceName);
 
 app.locals.logger = logger;
+app.locals.pool = pool;
 
-app.listen(config.PORT, async () => {
+const server = app.listen(config.PORT, async () => {
   logger.info("Service started", { port: config.PORT });
   try {
     await pool.query("SELECT NOW()");
@@ -23,4 +29,11 @@ app.listen(config.PORT, async () => {
   } catch (err) {
     logger.error("Database connection failed", { err });
   }
+});
+
+setupGracefulShutdown({
+  server,
+  logger,
+  pool,
+  serviceName: config.serviceName,
 });
