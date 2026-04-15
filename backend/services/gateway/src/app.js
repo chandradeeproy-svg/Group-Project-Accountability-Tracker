@@ -16,24 +16,50 @@ const proxy = httpProxy.createProxyServer({
   xfwd: process.env.NODE_ENV === "production",
 });
 
+// --- CORS lockdown ---
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
+  .split(",")
+  .map((o) => o.trim());
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: Origin ${origin} not allowed`));
+    }
+  },
   credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Request-ID", "X-Requested-With"],
+  exposedHeaders: ["X-Request-ID"],
+  maxAge: 86400,
 }));
 
 app.use(requestId);
 app.use(requestLogger);
+
+// --- Rate limiting ---
 app.use(createRateLimiter({
   windowMs: 60 * 1000,
   maxRequests: Number(process.env.RATE_LIMIT_MAX || 120),
 }));
 
+// --- Security headers (gateway-level, lightweight since no helmet dep here) ---
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-XSS-Protection", "0"); // Modern browsers don't need this, disable to avoid false positives
+  res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+  res.setHeader("X-DNS-Prefetch-Control", "off");
+  res.setHeader("X-Download-Options", "noopen");
+  res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
+  res.removeHeader("X-Powered-By");
   next();
 });
 
+// --- Health endpoints ---
 app.get("/health/live", (_req, res) => {
   res.json({
     status: "ok",
@@ -68,6 +94,7 @@ app.get("/health", (req, res) => {
     service: "gateway",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+    version: "1.0.0",
     services: {
       auth: services.AUTH.url,
       project: services.PROJECT.url,
@@ -76,6 +103,7 @@ app.get("/health", (req, res) => {
   });
 });
 
+// --- API proxy ---
 app.use("/api/v1", (req, res) => {
   const target = resolveTarget(req.url);
 
@@ -106,6 +134,7 @@ app.use("/api/v1", (req, res) => {
   });
 });
 
+// --- 404 catch-all ---
 app.use((req, res) => {
   res.status(404).json({
     error: {
@@ -116,6 +145,7 @@ app.use((req, res) => {
   });
 });
 
+// --- Proxy event handlers ---
 proxy.on("proxyReq", (proxyReq, req) => {
   if (req.id) {
     proxyReq.setHeader("X-Request-ID", req.id);
