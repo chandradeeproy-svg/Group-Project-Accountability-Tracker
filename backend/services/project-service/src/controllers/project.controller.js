@@ -21,7 +21,7 @@ async function createProjectController(req, res) {
 }
 
 async function getProjectByIdController(req, res) {
-  const project = await projectService.getProjectById(req.params.projectId);
+  const project = await projectService.getProjectById(req.params.projectId, req.userId);
   res.json(project);
 }
 
@@ -33,13 +33,13 @@ async function addProjectMemberController(req, res) {
     throw new ValidationError(parsed.error.issues[0].message, parsed.error.flatten());
   }
 
-  await projectService.addProjectMember(projectId, parsed.data.userId, parsed.data.role);
+  await projectService.addProjectMember(projectId, parsed.data.userId, parsed.data.role, req.userId);
   res.status(201).json({ message: "Member added successfully" });
 }
 
 async function getProjectMembersController(req, res) {
   const { projectId } = req.params;
-  const members = await projectService.getProjectMembers(projectId);
+  const members = await projectService.getProjectMembers(projectId, req.userId);
   res.json(members);
 }
 

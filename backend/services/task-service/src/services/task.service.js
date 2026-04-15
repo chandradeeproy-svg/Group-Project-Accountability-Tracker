@@ -8,7 +8,36 @@ const {
 } = require("@gpa/shared");
 const { v4: uuidv4 } = require("uuid");
 
-async function createTask(data) {
+async function ensureProjectMembership(projectId, userId) {
+  const membership = await pool.query(
+    `SELECT role
+     FROM project_members
+     WHERE projectId = $1 AND userId = $2`,
+    [projectId, userId],
+  );
+
+  if (membership.rowCount === 0) {
+    throw new ForbiddenError("You are not a member of this project");
+  }
+
+  return membership.rows[0];
+}
+
+async function ensureProjectOwner(projectId, userId) {
+  const membership = await ensureProjectMembership(projectId, userId);
+  if (membership.role !== "OWNER") {
+    throw new ForbiddenError("Only the project owner can perform this action");
+  }
+}
+
+async function ensureTaskAssigneeIsMember(projectId, assigneeId) {
+  await ensureProjectMembership(projectId, assigneeId);
+}
+
+async function createTask(data, actorId) {
+  await ensureProjectOwner(data.projectId, actorId);
+  await ensureTaskAssigneeIsMember(data.projectId, data.ownerId);
+
   const taskId = uuidv4();
 
   await pool.query(
@@ -61,7 +90,9 @@ async function updateTaskStatus(taskId, userId, status) {
   });
 }
 
-async function listTask(projectId) {
+async function listTask(projectId, userId) {
+  await ensureProjectMembership(projectId, userId);
+
   const result = await pool.query(
     "SELECT * FROM tasks WHERE projectId = $1 ORDER BY createdAt DESC",
     [projectId],
@@ -110,7 +141,9 @@ async function approveTask(taskId, userId) {
   });
 }
 
-async function getProjectActivity(projectId) {
+async function getProjectActivity(projectId, userId) {
+  await ensureProjectMembership(projectId, userId);
+
   const result = await pool.query(
     `SELECT e.*, u.name as userName
      FROM evidence_events e
@@ -145,4 +178,6 @@ module.exports = {
   approveTask,
   getProjectActivity,
   getAllUserActivity,
+  ensureProjectMembership,
+  ensureProjectOwner,
 };

@@ -16,7 +16,7 @@ async function createTaskController(req, res) {
     throw new ValidationError("Invalid task payload", parsed.error.flatten());
   }
 
-  await taskService.createTask(parsed.data);
+  await taskService.createTask(parsed.data, req.userId);
   return res.status(201).json({ message: "Task created successfully" });
 }
 
@@ -35,7 +35,7 @@ async function updateTaskStatusController(req, res) {
 }
 
 async function getTask(req, res) {
-  const tasks = await taskService.listTask(req.params.projectId);
+  const tasks = await taskService.listTask(req.params.projectId, req.userId);
   res.json(tasks);
 }
 
@@ -58,7 +58,7 @@ async function approveTaskController(req, res) {
 }
 
 async function getProjectActivityController(req, res) {
-  const activity = await taskService.getProjectActivity(req.params.projectId);
+  const activity = await taskService.getProjectActivity(req.params.projectId, req.userId);
   res.json(activity);
 }
 

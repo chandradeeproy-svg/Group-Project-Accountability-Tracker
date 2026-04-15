@@ -1,6 +1,10 @@
 "use strict";
 
-const { pool, NotFoundError } = require("@gpa/shared");
+const {
+  pool,
+  NotFoundError,
+  ForbiddenError,
+} = require("@gpa/shared");
 const { v4: uuidv4 } = require("uuid");
 
 async function createProject(name, ownerId) {
@@ -34,7 +38,31 @@ async function getUserProjects(userId) {
   return result.rows;
 }
 
-async function getProjectById(projectId) {
+async function ensureProjectMembership(projectId, userId) {
+  const membership = await pool.query(
+    `SELECT role
+     FROM project_members
+     WHERE projectId = $1 AND userId = $2`,
+    [projectId, userId],
+  );
+
+  if (membership.rowCount === 0) {
+    throw new ForbiddenError("You are not a member of this project");
+  }
+
+  return membership.rows[0];
+}
+
+async function ensureProjectOwner(projectId, userId) {
+  const membership = await ensureProjectMembership(projectId, userId);
+  if (membership.role !== "OWNER") {
+    throw new ForbiddenError("Only the project owner can perform this action");
+  }
+}
+
+async function getProjectById(projectId, requesterId) {
+  await ensureProjectMembership(projectId, requesterId);
+
   const result = await pool.query(
     "SELECT * FROM projects WHERE projectId = $1",
     [projectId],
@@ -47,7 +75,18 @@ async function getProjectById(projectId) {
   return result.rows[0];
 }
 
-async function addProjectMember(projectId, userId, role = "MEMBER") {
+async function addProjectMember(projectId, userId, role = "MEMBER", actorId) {
+  await ensureProjectOwner(projectId, actorId);
+
+  const userResult = await pool.query(
+    "SELECT id FROM users WHERE id = $1",
+    [userId],
+  );
+
+  if (userResult.rowCount === 0) {
+    throw new NotFoundError("User not found");
+  }
+
   await pool.query(
     `INSERT INTO project_members (projectId, userId, role, joinedAt)
      VALUES ($1, $2, $3, NOW())
@@ -56,7 +95,9 @@ async function addProjectMember(projectId, userId, role = "MEMBER") {
   );
 }
 
-async function getProjectMembers(projectId) {
+async function getProjectMembers(projectId, requesterId) {
+  await ensureProjectMembership(projectId, requesterId);
+
   const result = await pool.query(
     `SELECT pm.userId, pm.role, pm.joinedAt, u.name, u.email
      FROM project_members pm
@@ -75,4 +116,6 @@ module.exports = {
   getProjectById,
   addProjectMember,
   getProjectMembers,
+  ensureProjectMembership,
+  ensureProjectOwner,
 };
