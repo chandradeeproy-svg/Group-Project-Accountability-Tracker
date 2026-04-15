@@ -281,6 +281,12 @@ export default function GroupDetail() {
                   className="form-input"
                   style={{ borderColor: newTaskAssignee ? "var(--color-border)" : "var(--color-danger)" }}
                 >
+                  <option value="">-- Select a member --</option>
+                  {members.map((member) => (
+                    <option key={member.userid || member.userId} value={member.userid || member.userId}>
+                      {member.name} ({member.email})
+                    </option>
+                  ))}
                 </select>
               </div>
               <Button
