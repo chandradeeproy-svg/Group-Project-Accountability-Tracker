@@ -2,11 +2,11 @@
   "name": "@gpa/project",
   "version": "1.0.0",
   "description": "Project management service",
-  "main": "src/server.ts",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node dist/services/project-service/src/server.js",
-    "dev": "nodemon src/server.ts",
-    "build": "tsc"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "build": "node -e \"console.log('No build step required')\""
   },
   "dependencies": {
     "@gpa/shared": "*",
@@ -20,15 +20,6 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/module-alias": "^2.0.4",
-    "@types/node": "^20.12.7",
-    "@types/pg": "^8.16.0",
-    "@types/uuid": "^9.0.8",
-    "nodemon": "^3.1.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "nodemon": "^3.1.0"
   }
 }
