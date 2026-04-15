@@ -1,6 +1,17 @@
 "use strict";
 
-function setupGracefulShutdown({ server, logger, pool, serviceName }) {
+/**
+ * Graceful Shutdown Handler
+ *
+ * Handles SIGINT/SIGTERM signals to cleanly shut down:
+ *   1. Stop accepting new connections
+ *   2. Run custom cleanup (e.g. close event bus)
+ *   3. Drain the database pool
+ *   4. Exit cleanly
+ *
+ * Force-exits after 10s timeout to prevent zombie processes.
+ */
+function setupGracefulShutdown({ server, logger, pool, serviceName, onShutdown }) {
   let shuttingDown = false;
 
   async function shutdown(signal) {
@@ -13,6 +24,11 @@ function setupGracefulShutdown({ server, logger, pool, serviceName }) {
 
     server.close(async () => {
       try {
+        // Run custom cleanup (event bus, caches, etc.)
+        if (onShutdown) {
+          await onShutdown();
+        }
+
         if (pool) {
           await pool.end();
         }

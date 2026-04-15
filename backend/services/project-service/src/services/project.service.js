@@ -2,6 +2,8 @@
 
 const {
   pool,
+  publish,
+  EventTypes,
   NotFoundError,
   ForbiddenError,
 } = require("@gpa/shared");
@@ -21,6 +23,14 @@ async function createProject(name, ownerId) {
      VALUES ($1, $2, 'OWNER', NOW())`,
     [projectId, ownerId],
   );
+
+  // Publish project.created event
+  await publish(EventTypes.PROJECT_CREATED, {
+    project_id: projectId,
+    user_id: ownerId,
+    name,
+    source: "project-service",
+  });
 
   return { projectId, name, ownerId };
 }
@@ -93,6 +103,15 @@ async function addProjectMember(projectId, userId, role = "MEMBER", actorId) {
      ON CONFLICT (projectId, userId) DO NOTHING`,
     [projectId, userId, role],
   );
+
+  // Publish member.added event so task-service (and future services) react
+  await publish(EventTypes.MEMBER_ADDED, {
+    project_id: projectId,
+    user_id: userId,
+    role,
+    added_by: actorId,
+    source: "project-service",
+  });
 }
 
 async function getProjectMembers(projectId, requesterId) {

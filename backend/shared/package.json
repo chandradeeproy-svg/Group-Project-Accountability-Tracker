@@ -4,6 +4,8 @@
   "main": "index.js",
   "private": true,
   "dependencies": {
+    "amqplib": "^1.0.3",
+    "helmet": "^8.1.0",
     "ioredis": "^5.10.1",
     "pg": "^8.17.2",
     "uuid": "^13.0.0",

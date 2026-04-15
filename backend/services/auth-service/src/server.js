@@ -13,6 +13,7 @@ const {
   loadServiceConfig,
   createLogger,
   setupGracefulShutdown,
+  closeEventBus,
 } = require("@gpa/shared");
 
 const config = loadServiceConfig("auth-service", { defaultPort: 4001 });
@@ -36,4 +37,5 @@ setupGracefulShutdown({
   logger,
   pool,
   serviceName: config.serviceName,
+  onShutdown: closeEventBus,
 });

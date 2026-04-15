@@ -3,6 +3,8 @@
 const {
   pool,
   recordEvent,
+  publish,
+  EventTypes,
   NotFoundError,
   ForbiddenError,
 } = require("@gpa/shared");
@@ -46,13 +48,17 @@ async function createTask(data, actorId) {
     [taskId, data.projectId, data.ownerId, data.title, data.deadline || null],
   );
 
-  await recordEvent({
+  const eventPayload = {
     project_id: data.projectId,
     user_id: data.ownerId,
     type: "TASK_CREATED",
     source: "task-service",
-    metadata: { taskId, title: data.title },
-  });
+    metadata: { taskId, title: data.title, assignedBy: actorId },
+  };
+
+  // Record to DB (backward compat) + publish to event bus
+  await recordEvent(eventPayload);
+  await publish(EventTypes.TASK_CREATED, eventPayload);
 }
 
 async function updateTaskStatus(taskId, userId, status) {
@@ -76,7 +82,7 @@ async function updateTaskStatus(taskId, userId, status) {
 
   await pool.query("UPDATE tasks SET status = $1 WHERE taskId = $2", [status, taskId]);
 
-  await recordEvent({
+  const eventPayload = {
     project_id: task.projectid,
     user_id: userId,
     type: "TASK_STATUS_CHANGED",
@@ -87,7 +93,10 @@ async function updateTaskStatus(taskId, userId, status) {
       to: status,
       taskTitle: task.title,
     },
-  });
+  };
+
+  await recordEvent(eventPayload);
+  await publish(EventTypes.TASK_STATUS_CHANGED, eventPayload);
 }
 
 async function listTask(projectId, userId) {
@@ -132,13 +141,16 @@ async function approveTask(taskId, userId) {
 
   await pool.query("UPDATE tasks SET status = 'APPROVED' WHERE taskId = $1", [taskId]);
 
-  await recordEvent({
+  const eventPayload = {
     project_id: task.projectid,
     user_id: userId,
     type: "TASK_APPROVED",
     source: "task-service",
     metadata: { taskId, taskTitle: task.title },
-  });
+  };
+
+  await recordEvent(eventPayload);
+  await publish(EventTypes.TASK_APPROVED, eventPayload);
 }
 
 async function getProjectActivity(projectId, userId) {
