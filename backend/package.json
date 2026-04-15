@@ -7,7 +7,7 @@
     "services/*"
   ],
   "scripts": {
-    "dev": "concurrently -n \"AUTH,PROJECT,TASK\" -c \"blue,green,magenta\" \"npm run dev --prefix services/auth-service\" \"npm run dev --prefix services/project-service\" \"npm run dev --prefix services/task-service\"",
+    "dev": "concurrently -n \"GATEWAY,AUTH,PROJECT,TASK\" -c \"yellow,blue,green,magenta\" \"npm run dev --prefix services/gateway\" \"npm run dev --prefix services/auth-service\" \"npm run dev --prefix services/project-service\" \"npm run dev --prefix services/task-service\"",
     "install:all": "npm install"
   },
   "keywords": [],
