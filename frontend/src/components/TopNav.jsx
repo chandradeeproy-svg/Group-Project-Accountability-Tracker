@@ -24,9 +24,9 @@ export default function TopNav() {
             textAlign: "center",
             fontSize: "0.95rem",
             fontWeight: 600,
-            color: "var(--color-text-tertiary)",
+            color: "var(--color-text-primary)",
             margin: 0,
-            opacity: 0.8
+            opacity: 0.7
         }} className="hide-mobile">
         Group Project Accountability
       </h1>

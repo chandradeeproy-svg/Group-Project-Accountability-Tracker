@@ -23,6 +23,19 @@
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-xl: 24px;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+
+  --color-bg-secondary: #f3f4f6;
+  --color-text: #111827;
+  --color-warning: #f59e0b;
+
+  --transition-base: 0.2s ease;
 }
 
 *, *::before, *::after {

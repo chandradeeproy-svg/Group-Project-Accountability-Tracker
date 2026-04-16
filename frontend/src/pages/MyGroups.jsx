@@ -53,9 +53,9 @@ export default function MyGroups() {
         </Button>
       </div>
 
-      {showCreateForm && (<div className="card glass animate-fade" style={{ marginBottom: "32px", border: "1px solid var(--color-primary-light)" }}>
+      {showCreateForm && (<div className="card glass animate-fade" style={{ marginBottom: "32px", padding: "28px 32px", border: "1px solid var(--color-primary-light)" }}>
           <h3 style={{ marginBottom: "20px" }}>Create New Project Group</h3>
-          <div style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
+          <div style={{ display: "flex", gap: "16px", alignItems: "flex-end" }}>
             <FormInput label="Group Name" placeholder="e.g. Senior Design Project" value={newProjectName} onChange={(e) => setNewProjectName(e.target.value)} style={{ flex: 1, marginBottom: 0 }}/>
             <Button onClick={handleCreateProject} variant="success">Create</Button>
           </div>
