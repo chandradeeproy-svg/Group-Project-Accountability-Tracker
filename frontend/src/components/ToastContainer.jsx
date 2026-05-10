@@ -1,4 +1,4 @@
-import React from "react";
+// [DEAD CODE] import React from "react"; // Not needed with Vite JSX transform
 import { useToast } from "../context/ToastContext.jsx";
 const toastStyles = {
     success: {

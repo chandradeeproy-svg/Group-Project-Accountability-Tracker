@@ -80,6 +80,7 @@ function deepSanitize(obj) {
  * Returns a strict CORS config object for production use.
  * Whitelists only known origins and allows credentials.
  */
+/* [DEAD CODE]
 function createCorsConfig(allowedOrigins = []) {
   const origins = allowedOrigins.length > 0
     ? allowedOrigins
@@ -108,9 +109,10 @@ function createCorsConfig(allowedOrigins = []) {
     maxAge: 86400, // Preflight cache: 24 hours
   };
 }
+*/
 
 module.exports = {
   createSecurityMiddleware,
   sanitizeInput,
-  createCorsConfig,
+  // [DEAD CODE] createCorsConfig,
 };

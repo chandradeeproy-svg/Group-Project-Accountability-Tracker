@@ -1,3 +1,8 @@
+/* =============================================================
+   [DEAD CODE] This entire CSS file is never imported.
+   All styles are loaded from index.css via main.jsx.
+   Safe to delete when ready.
+   ============================================================= */
 /* Main App Layout */
 #root {
   display: flex;

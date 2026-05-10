@@ -1,14 +1,31 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "./layout/AppLayout.jsx";
 import { useAuth } from "./auth/AuthContext.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import MyTasks from "./pages/MyTasks.jsx";
-import MyGroups from "./pages/MyGroups.jsx";
-import Activity from "./pages/Activity.jsx";
-import Scores from "./pages/Scores.jsx";
-import GroupDetails from "./pages/GroupDetails.jsx";
-import Login from "./pages/Login.jsx";
-import Register from "./pages/Register.jsx";
+
+const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
+const MyTasks = lazy(() => import("./pages/MyTasks.jsx"));
+const MyGroups = lazy(() => import("./pages/MyGroups.jsx"));
+const Activity = lazy(() => import("./pages/Activity.jsx"));
+const Scores = lazy(() => import("./pages/Scores.jsx"));
+const GroupDetails = lazy(() => import("./pages/GroupDetails.jsx"));
+const Login = lazy(() => import("./pages/Login.jsx"));
+const Register = lazy(() => import("./pages/Register.jsx"));
+
+// Loading component
+const PageLoader = () => (
+  <div style={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+    color: "var(--color-primary)",
+    fontWeight: 600
+  }}>
+    Loading...
+  </div>
+);
+
 function App() {
     const { token } = useAuth();
     // Redirect to login if not authenticated

@@ -1,4 +1,4 @@
-import React from "react";
+// [DEAD CODE] import React from "react"; // Not needed with Vite JSX transform
 export const FormInput = ({ label, error, helperText, id, className = "", ...props }) => {
   const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
   return (<div style={{ marginBottom: "1.25rem", display: "flex", flexDirection: "column" }}>

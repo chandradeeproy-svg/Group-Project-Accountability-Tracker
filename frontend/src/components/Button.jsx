@@ -1,4 +1,4 @@
-import React from "react";
+// [DEAD CODE] import React from "react"; // Not needed with Vite JSX transform
 export const Button = ({ variant = "primary", size = "md", loading = false, children, disabled, className = "", ...props }) => {
     const variantClass = `btn-${variant}`;
     const sizeClass = `btn-${size}`;

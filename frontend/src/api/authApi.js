@@ -12,6 +12,7 @@ export function register(name, email, password) {
         body: JSON.stringify({ name, email, password })
     });
 }
+// [DEAD CODE]
 // export function getMe(token: string) {
 //   return apiFetch(`${BASE}/auth/me`, {}, token);
 // }
