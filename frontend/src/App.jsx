@@ -28,28 +28,39 @@ const PageLoader = () => (
 
 function App() {
     const { token } = useAuth();
+    
     // Redirect to login if not authenticated
     if (!token) {
-        return (<BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />}/>
-          <Route path="/register" element={<Register />}/>
-          <Route path="*" element={<Navigate to="/login" replace/>}/>
-        </Routes>
-      </BrowserRouter>);
+        return (
+          <BrowserRouter>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/login" element={<Login />}/>
+                <Route path="/register" element={<Register />}/>
+                <Route path="*" element={<Navigate to="/login" replace/>}/>
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        );
     }
-    return (<BrowserRouter>
-      <Routes>
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<Dashboard />}/>
-          <Route path="/tasks" element={<MyTasks />}/>
-          <Route path="/groups" element={<MyGroups />}/>
-          <Route path="/activity" element={<Activity />}/>
-          <Route path="/scores" element={<Scores />}/>
-          <Route path="/groups/:groupId" element={<GroupDetails />}/>
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace/>}/>
-      </Routes>
-    </BrowserRouter>);
+
+    return (
+      <BrowserRouter>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<Dashboard />}/>
+              <Route path="/tasks" element={<MyTasks />}/>
+              <Route path="/groups" element={<MyGroups />}/>
+              <Route path="/activity" element={<Activity />}/>
+              <Route path="/scores" element={<Scores />}/>
+              <Route path="/groups/:groupId" element={<GroupDetails />}/>
+            </Route>
+            <Route path="*" element={<Navigate to="/" replace/>}/>
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    );
 }
+
 export default App;
