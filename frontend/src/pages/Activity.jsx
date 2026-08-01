@@ -19,9 +19,10 @@ export default function Activity() {
         <div style={{
           textAlign: "center",
           padding: "3rem",
-          backgroundColor: "rgba(239, 68, 68, 0.1)",
-          borderRadius: "12px",
-          color: "#ef4444",
+          backgroundColor: "#fff5f5",
+          border: "1px solid var(--color-danger)",
+          borderRadius: "3px",
+          color: "#8b2d2d",
         }}>
           <p>Please select a project to view its activity</p>
         </div>

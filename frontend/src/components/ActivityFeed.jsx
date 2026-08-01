@@ -37,7 +37,7 @@ export default function ActivityFeed({ projectId }) {
   }
 
   if (error) {
-    return <div className="activity-feed" style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>Failed to load activity</div>;
+    return <div className="activity-feed" style={{ textAlign: 'center', padding: '2rem', color: '#dc3545' }}>Failed to load activity</div>;
   }
 
   return (
@@ -47,10 +47,10 @@ export default function ActivityFeed({ projectId }) {
         <select
           value={filters.type}
           onChange={(e) => handleFilterChange({ type: e.target.value })}
+          className="form-input"
           style={{
-            padding: '0.5rem',
-            borderRadius: '4px',
-            border: '1px solid #ddd',
+            width: 'auto',
+            maxWidth: '300px',
           }}
         >
           <option value="">All Events</option>
@@ -60,7 +60,7 @@ export default function ActivityFeed({ projectId }) {
         </select>
       </div>
 
-      <div className="activity-list" style={{ borderLeft: '3px solid #6366f1', paddingLeft: '2rem' }}>
+      <div className="activity-list" style={{ borderLeft: '3px solid var(--color-primary)', paddingLeft: '2rem' }}>
         {events.length === 0 ? (
           <div style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>No activity found</div>
         ) : (
@@ -75,12 +75,8 @@ export default function ActivityFeed({ projectId }) {
           <button
             onClick={handlePrevPage}
             disabled={filters.offset === 0}
+            className="btn btn-primary"
             style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#6366f1',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
               cursor: filters.offset === 0 ? 'not-allowed' : 'pointer',
               opacity: filters.offset === 0 ? 0.5 : 1,
             }}
@@ -96,12 +92,8 @@ export default function ActivityFeed({ projectId }) {
           <button
             onClick={handleNextPage}
             disabled={!pagination.hasMore}
+            className="btn btn-primary"
             style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#6366f1',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
               cursor: !pagination.hasMore ? 'not-allowed' : 'pointer',
               opacity: !pagination.hasMore ? 0.5 : 1,
             }}

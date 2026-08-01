@@ -9,30 +9,29 @@ export default function ConfirmModal({ isOpen, title, message, onConfirm, onCanc
     return (<div className="fade-in" style={{
             position: "fixed",
             top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: "rgba(17, 24, 39, 0.4)",
+            backgroundColor: "rgba(0, 0, 0, 0.3)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             zIndex: 2000,
-            backdropFilter: "blur(6px)",
         }} onClick={onCancel} role="presentation">
-      <div className="glass animate-fade" style={{
+      <div className="card animate-fade" style={{
             padding: "32px",
-            borderRadius: "var(--radius-lg)",
             width: "90%",
             maxWidth: "440px",
             textAlign: "center",
-            border: "1px solid rgba(255, 255, 255, 0.5)",
+            border: "1px solid var(--color-border)",
+            backgroundColor: "white",
         }} onClick={(e) => e.stopPropagation()} role="alertdialog" aria-modal="true">
         <div style={{ marginBottom: "24px" }}>
           <div style={{
             width: "60px", height: "60px",
-            borderRadius: "50%",
+            borderRadius: "3px",
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: "32px",
             margin: "0 auto 16px",
-            backgroundColor: "white",
-            boxShadow: "var(--shadow-md)"
+            backgroundColor: "#f5f5f5",
+            border: "1px solid var(--color-border)"
         }}>
             {type === "danger" ? "⚠️" : type === "success" ? "✅" : "❓"}
           </div>
